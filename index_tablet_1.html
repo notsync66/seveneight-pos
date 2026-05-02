@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>💧 Seven Eight</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0d1117;--card:#161b22;--card2:#21262d;--border:#30363d;
+  --accent:#58a6ff;--green:#3fb950;--red:#f85149;--yellow:#d29922;
+  --text:#e6edf3;--muted:#8b949e;--r:16px;
+}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:80px}
+button,input{font-family:'Sarabun',sans-serif}
+.screen{display:none;padding:0 16px 40px;max-width:480px;margin:0 auto}
+.screen.active{display:block}
+#topbar{background:var(--card);border-bottom:1px solid var(--border);padding:13px 16px;
+  display:none;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+#topbar h1{font-size:17px;font-weight:800}
+.date-badge{font-size:12px;color:var(--muted);background:var(--card2);padding:4px 10px;border-radius:20px;border:1px solid var(--border)}
+#tabs{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--card);border-top:1px solid var(--border);flex-direction:row;padding:0;max-width:100%;margin:0;padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;background:none;border:none;border-radius:0;padding:10px 4px 14px;font-size:10px;font-weight:700;color:var(--muted);transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.tab .tab-icon{font-size:22px;line-height:1}
+.tab .tab-icon-wrap{font-size:22px}
+.tab.active{color:var(--accent)}
+.lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:18px 0 8px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
+.btn{width:100%;border:none;border-radius:14px;padding:15px;font-size:17px;font-weight:800;margin-top:10px;cursor:pointer;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.97);opacity:.85}
+.btn-accent{background:var(--accent);color:#000}
+.btn-green{background:var(--green);color:#000}
+.btn-yellow{background:var(--yellow);color:#000}
+.btn-outline{background:var(--card2);color:var(--text);border:1px solid var(--border);font-size:15px}
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prod-card{background:var(--card);border:2px solid var(--border);border-radius:var(--r);padding:14px 10px;text-align:center;position:relative;user-select:none;transition:border-color .15s,background .15s}
+.prod-card:active{transform:scale(.95)}
+.prod-card.in-cart{border-color:var(--accent);background:#1a2535}
+/* ขยายวงกลมตัวเลข 24→34px */
+.prod-badge{position:absolute;top:-11px;right:-11px;background:var(--accent);color:#000;font-weight:800;font-size:15px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px #0006}
+.cart-row{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:10px;padding:8px 12px;margin-bottom:6px}
+.qty-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sum-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.sum-row:last-child{border-bottom:none}
+.shift-btns{display:flex;gap:8px;margin-bottom:4px}
+.shift-btn{flex:1;padding:12px 0;border-radius:12px;border:2px solid var(--border);background:var(--card2);color:var(--muted);font-weight:700;font-size:16px;cursor:pointer;transition:.15s}
+.shift-btn.on{border-color:var(--accent);background:#1a2535;color:var(--accent)}
+.qr-box{width:200px;height:200px;margin:0 auto 14px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;border:2px dashed var(--border);background:var(--card2)}
+.qr-box img{width:100%;height:100%;object-fit:contain}
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--green);color:#000;font-weight:700;font-size:14px;padding:11px 22px;border-radius:30px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:9999;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:var(--green);color:#000;font-size:24px;font-weight:800;padding:20px 36px;border-radius:20px;z-index:999;box-shadow:0 8px 40px #0009;transition:transform .15s,opacity .3s;opacity:0;pointer-events:none}
+#flash.show{transform:translate(-50%,-50%) scale(1);opacity:1}
+
+/* numpad */
+#numpad-overlay{display:none;position:fixed;inset:0;z-index:99999;flex-direction:column;justify-content:flex-end;background:#0008}
+#numpad-overlay.show{display:flex}
+#numpad-box{background:var(--card);border-top:1px solid var(--border);padding:10px 14px 22px;max-width:480px;width:100%;margin:0 auto}
+#numpad-label{font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:700}
+#numpad-display{font-size:30px;font-weight:800;color:var(--text);text-align:right;padding:6px 10px;background:var(--card2);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;min-height:46px;line-height:1.2}
+.np-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.np-btn{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:13px 0;font-size:20px;font-weight:700;color:var(--text);cursor:pointer;transition:.1s;text-align:center}
+.np-btn:active{transform:scale(.93);background:var(--border)}
+.np-btn.np-ok{background:var(--green);color:#000;border-color:var(--green);font-size:16px}
+.np-btn.np-next{background:var(--accent);color:#000;border-color:var(--accent);font-size:16px}
+.np-btn.np-del{background:var(--card);font-size:18px}
+.np-btn.np-cancel{background:none;color:var(--muted);font-size:13px;border-color:transparent}
+
+.denom-btn{background:var(--card2);border:2px solid var(--border);border-radius:12px;padding:14px 6px;font-size:18px;font-weight:800;color:var(--text);cursor:pointer;transition:.1s;width:100%}
+.denom-btn:active{transform:scale(.92);background:var(--accent);color:#000;border-color:var(--accent)}
+
+
+
+/* ── TABLET SIDEBAR (≥768px) ────────────────────────────────── */
+@media(min-width:768px){
+  body{ padding-bottom:0; }
+  #tabs{
+    position:fixed;top:0;left:0;bottom:0;right:auto;width:90px;
+    flex-direction:column;justify-content:flex-start;align-items:stretch;
+    border-top:none;border-right:1px solid var(--border);border-bottom:none;
+    padding:0;max-width:90px;overflow:hidden;gap:0;z-index:200;
+  }
+  .tab{flex:none;width:90px;height:76px;padding:12px 4px;font-size:10px;border-radius:0;gap:5px;border-left:3px solid transparent;justify-content:center;}
+  .tab .tab-icon, .tab .tab-icon-wrap{ font-size:24px; }
+  .tab.active{color:var(--accent);border-left-color:var(--accent);background:var(--card2);}
+  #topbar{left:90px;justify-content:space-between;}
+  #topbar::before{content:'';flex:1;}
+  #clockLabel{position:absolute;left:50%;transform:translateX(-50%);}
+
+  /* all screens: shift right of sidebar */
+  .screen{
+    margin-left:90px !important;max-width:none !important;
+    width:calc(100% - 90px) !important;
+    padding-left:0 !important;padding-right:0 !important;padding-top:0 !important;
+  }
+
+  /* ══ SELL SCREEN split ══ */
+  #sellScreen{display:none;height:calc(100dvh - 58px);overflow:hidden;}
+  #sellScreen.active{display:flex !important;flex-direction:row;align-items:stretch;}
+  #sell-left{flex:1;overflow-y:auto;padding:20px 20px 24px;border-right:1px solid var(--border);}
+  #sell-right{width:340px;flex-shrink:0;display:flex;flex-direction:column;padding:20px 20px 24px;overflow-y:auto;}
+
+  /* ══ PAY SCREEN split ══ */
+  #payScreen{display:none;height:calc(100dvh - 58px);overflow:hidden;}
+  #payScreen.active{display:flex !important;flex-direction:row;align-items:stretch;}
+  #pay-left{flex:1;overflow-y:auto;padding:20px 20px 24px;border-right:1px solid var(--border);display:flex;flex-direction:column;}
+  #pay-right{width:400px;flex-shrink:0;overflow-y:auto;padding:20px 20px 24px;display:flex;flex-direction:column;}
+
+  /* ══ SUMMARY SCREEN split ══ */
+  #summaryScreen{display:none;height:calc(100dvh - 58px);overflow:hidden;}
+  #summaryScreen.active{display:flex !important;flex-direction:row;align-items:stretch;}
+  #sum-left{flex:1;overflow-y:auto;padding:20px 20px 24px;border-right:1px solid var(--border);}
+  #sum-right{width:340px;flex-shrink:0;overflow-y:auto;padding:20px 20px 24px;display:flex;flex-direction:column;}
+
+  .prod-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media(min-width:1024px){
+  .prod-grid{grid-template-columns:repeat(4,1fr);}
+  #sell-right{width:380px;}
+  #pay-right{width:440px;}
+  #sum-right{width:380px;}
+}
+
+
+#goalFloat{
+  animation:gFloat 2.8s ease-in-out infinite;
+}
+#goalFloat.not-done{ color:var(--accent); }
+#goalFloat.done{ color:var(--green); }
+@keyframes gFloat{
+  0%,100%{transform:translateY(0px); opacity:1}
+  50%{transform:translateY(-7px); opacity:.85}
+}
+#goalFloat.done{
+  animation:gCelebrate 1.4s ease-in-out infinite;
+}
+@keyframes gCelebrate{
+  0%,100%{transform:scale(1); opacity:1}
+  40%{transform:scale(1.1); opacity:.9}
+}
+
+/* ── TABLET topbar offset for split screens ── */
+@media(min-width:768px){
+  #topbar{
+    position:fixed;top:0;left:90px;right:0;z-index:150;
+  }
+  /* screens ต้องเว้น topbar */
+  .screen{
+    padding-top:58px !important;
+  }
+  /* sell/pay/summary ที่ใช้ flex row ต้องตัด topbar ออกแล้ว */
+  #sellScreen.active,
+  #payScreen.active,
+  #summaryScreen.active{
+    margin-top:58px !important;
+    height:calc(100dvh - 58px) !important;
+  }
+
+  /* ซ่อน scrollbar ทุก panel (ยังเลื่อนได้ แต่ไม่โชว์แถบ) */
+  #sell-left, #sell-right,
+  #pay-left, #pay-right,
+  #sum-left, #sum-right {
+    scrollbar-width: none;        /* Firefox */
+    -ms-overflow-style: none;     /* IE/Edge */
+  }
+  #sell-left::-webkit-scrollbar,
+  #sell-right::-webkit-scrollbar,
+  #pay-left::-webkit-scrollbar,
+  #pay-right::-webkit-scrollbar,
+  #sum-left::-webkit-scrollbar,
+  #sum-right::-webkit-scrollbar {
+    display: none;                /* Chrome/Safari/iPad */
+  }
+}
+#wageBox{background:var(--card);border-top:2px solid var(--border);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:480px}
+#wageBox h3{font-size:18px;font-weight:800;margin-bottom:4px}
+.wage-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.wage-row:last-of-type{border-bottom:none}
+.wage-opt{display:flex;gap:8px;margin:10px 0}
+.wage-opt button{flex:1;padding:12px 6px;border-radius:12px;border:2px solid var(--border);background:var(--card2);color:var(--muted);font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
+.wage-opt button.on{border-color:var(--accent);background:#1a2535;color:var(--accent)}
+
+.tab-icon-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+.cart-tab-badge{position:absolute;top:-7px;right:-12px;background:var(--red);color:#fff;font-weight:800;font-size:10px;min-width:17px;height:17px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 3px;box-shadow:0 1px 4px #0006;line-height:1}
+.cart-tab-badge.show{display:flex}
+
+#confirmModal{display:none;position:fixed;inset:0;background:#000a;z-index:9999;align-items:center;justify-content:center;padding:24px}
+#confirmModal.show{display:flex}
+#confirmBox{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px 20px;width:100%;max-width:360px;text-align:center}
+#confirmBox h3{font-size:18px;font-weight:800;margin-bottom:8px}
+#confirmBox p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCtlocEaaaAD8TIMFjFEQ3OtrhqI0-S1pps",
+    authDomain: "seveneight-pos.firebaseapp.com",
+    databaseURL: "https://seveneight-pos-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "seveneight-pos",
+    storageBucket: "seveneight-pos.firebasestorage.app",
+    messagingSenderId: "826689738915",
+    appId: "1:826689738915:web:bc171bde394b3468570716"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // expose ให้ JS ทั่วไปใช้ได้
+  window._fbSet = (data) => set(ref(db, 'display'), data);
+  window._fbClear = () => remove(ref(db, 'display'));
+</script>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="date-badge" id="clockLabel"></span>
+  <span class="date-badge" id="dateLabel"></span>
+</div>
+<div id="tabs">
+  <button class="tab active" onclick="goTab('sell')"><span class="tab-icon tab-icon-wrap">🛒<span id="cartTabBadge" class="cart-tab-badge"></span></span>ขาย</button>
+  <button class="tab" onclick="goTab('log')"><span class="tab-icon">📝</span>Log</button>
+  <button class="tab" onclick="goTab('summary')"><span class="tab-icon">📊</span>สรุป</button>
+  <button class="tab" onclick="goTab('history')"><span class="tab-icon">📅</span>ประวัติ</button>
+</div>
+
+<!-- SETUP -->
+<div id="setupScreen" class="screen active" style="padding-top:0">
+  <div style="text-align:center;padding:28px 0 20px">
+    <div style="font-size:52px">💧</div>
+    <div style="font-size:24px;font-weight:800;margin-top:6px">เริ่มกะใหม่</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:3px">ตั้งค่าก่อนเริ่มขาย</div>
+  </div>
+
+  <div class="lbl" style="margin-top:0">📱 เบอร์พร้อมเพย์ (สำหรับ QR ล็อคราคา)</div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <!-- แสดงเบอร์ปัจจุบัน + ปุ่ม expand -->
+    <div onclick="togglePhoneEdit()" style="display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer">
+      <span style="font-size:20px">📱</span>
+      <div style="flex:1">
+        <div id="ppPhoneDisplay" style="font-size:16px;font-weight:800;color:var(--accent);letter-spacing:2px">-</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">แตะเพื่อแก้ไข</div>
+      </div>
+      <span id="ppChevron" style="color:var(--muted);font-size:18px;transition:.2s">›</span>
+    </div>
+    <!-- ส่วน expand -->
+    <div id="ppEditSection" style="display:none;border-top:1px solid var(--border);padding:12px 14px">
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="tel" inputmode="numeric" id="ppPhone" placeholder="0812345678" maxlength="10"
+          style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:18px;font-weight:700;outline:none;letter-spacing:2px"
+          oninput="ppPhoneInput(this)">
+        <button onclick="savePpPhone()" style="background:var(--accent);color:#000;border:none;border-radius:10px;padding:10px 16px;font-weight:800;font-size:14px;cursor:pointer">บันทึก</button>
+      </div>
+      <div id="ppPhoneErr" style="display:none;font-size:12px;color:var(--red);margin-top:6px;font-weight:700"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">ต้องเป็นเบอร์มือถือไทย 10 หลัก (06x, 08x, 09x)</div>
+    </div>
+  </div>
+
+  <div class="lbl" style="margin-top:0">⏰ กะ</div>
+  <div class="shift-btns">
+    <button class="shift-btn on" onclick="selShift(this,'เช้า')">เช้า</button>
+    <button class="shift-btn" onclick="selShift(this,'เย็น')">เย็น</button>
+  </div>
+
+  <div class="lbl">📲 QR โอนเงิน (สำรอง — ถ้าไม่ใส่เบอร์พร้อมเพย์)</div>
+  <div class="card" style="text-align:center;padding:16px">
+    <div class="qr-box" id="setupQrBox" style="width:160px;height:160px;cursor:pointer" onclick="document.getElementById('qrInput').click()">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <span style="font-size:40px">📷</span>
+        <p style="font-size:12px;color:var(--muted)">แตะเพื่ออัพโหลด QR</p>
+        <p style="font-size:11px;color:var(--muted)">(ไม่บังคับ)</p>
+      </div>
+    </div>
+    <input type="file" id="qrInput" accept="image/*" style="display:none" onchange="loadQR(this)">
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+      <button onclick="document.getElementById('qrInput').click()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-weight:700;font-size:13px;cursor:pointer">📷 เลือกรูปสำรอง</button>
+      <button id="rmQrBtn" onclick="removeQR()" style="display:none;background:var(--card2);color:var(--red);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-weight:700;font-size:13px;cursor:pointer">ลบ</button>
+    </div>
+  </div>
+
+  <div class="lbl">🛍 สินค้าและราคา</div>
+  <div id="setupProdList"></div>
+  <div class="card" style="padding:12px 14px">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700">➕ เพิ่มสินค้าใหม่</div>
+    <div style="display:flex;gap:8px">
+      <input id="sEmoji" value="📦" maxlength="2" style="width:48px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px;color:var(--text);font-size:18px;text-align:center;outline:none">
+      <input id="sName" placeholder="ชื่อสินค้า" style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px 10px;color:var(--text);font-size:14px;outline:none">
+      <input type="number" inputmode="numeric" id="sPrice" placeholder="฿" style="width:64px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px;color:var(--text);font-size:14px;text-align:center;outline:none">
+      <button onclick="setupAddProd()" style="background:var(--accent);color:#000;border:none;border-radius:10px;padding:7px 14px;font-weight:800;font-size:20px;cursor:pointer;line-height:1">+</button>
+    </div>
+  </div>
+  <button onclick="startShift()" class="btn btn-accent" style="margin-top:16px;padding:18px;font-size:18px">✅ เริ่มกะ</button>
+</div>
+
+<!-- SELL -->
+<div id="sellScreen" class="screen">
+  <!-- ซ้าย: สินค้า (tablet จะกลายเป็น flex column) -->
+  <div id="sell-left">
+    <div id="prodArea"></div>
+    <!-- ปุ่มตั้งค่า — อยู่ล่างสุดของฝั่งซ้าย บน mobile ก็ยังอยู่ล่าง -->
+    <button onclick="goSetStock()" class="btn btn-outline" style="margin-top:14px;font-size:14px">📦 ตั้งค่าสต็อก</button>
+    <button onclick="goEditProds()" class="btn btn-outline" style="margin-top:8px;font-size:14px">⚙️ แก้ไขสินค้า/ราคา</button>
+  </div>
+  <!-- ขวา: ตะกร้า + ปุ่มชำระ -->
+  <div id="sell-right">
+    <div class="card" style="margin-top:0;flex:1;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-weight:700;font-size:15px">🧾 ตะกร้า <span id="cartCountLabel" style="display:none;background:var(--accent);color:#000;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:4px"></span></span>
+        <button onclick="clearCart()" id="clrBtn" style="background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;visibility:hidden">ล้าง</button>
+      </div>
+      <div id="cartEl" style="flex:1"><div style="text-align:center;color:var(--muted);font-size:14px;padding:10px 0">ยังไม่มีสินค้า — กดเพื่อเพิ่ม</div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+        <span style="font-size:14px;color:var(--muted)">รวม</span>
+        <strong id="cartTotalEl" style="font-size:26px;color:var(--green)">0฿</strong>
+      </div>
+    </div>
+    <div id="payBtnsEl" style="display:none;flex-direction:column;gap:8px;margin-top:10px">
+      <button onclick="openPay('cash')" style="width:100%;background:var(--green);color:#000;border:none;border-radius:14px;padding:16px 0;font-size:17px;font-weight:800;cursor:pointer">💵 เงินสด</button>
+      <button onclick="openPay('xfer')" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:14px;padding:16px 0;font-size:17px;font-weight:800;cursor:pointer">📲 โอน</button>
+      <button onclick="openPay('mix')" style="width:100%;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:14px 0;font-size:15px;font-weight:700;cursor:pointer">🔀 ผสม</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PRODS DURING SHIFT -->
+<div id="editProdsScreen" class="screen">
+  <div style="text-align:center;padding:20px 0 14px">
+    <div style="font-size:20px;font-weight:800">⚙️ แก้ไขสินค้า/ราคา</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:3px">ปรับราคาหรือเพิ่มสินค้าระหว่างกะ</div>
+  </div>
+  <div id="editProdListEl"></div>
+  <div class="card" style="padding:12px 14px;margin-top:4px">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700">➕ เพิ่มสินค้าใหม่</div>
+    <div style="display:flex;gap:8px">
+      <input id="epEmoji" value="📦" maxlength="2" style="width:48px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px;color:var(--text);font-size:18px;text-align:center;outline:none">
+      <input id="epName" placeholder="ชื่อสินค้า" style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px 10px;color:var(--text);font-size:14px;outline:none">
+      <input type="number" inputmode="numeric" id="epPrice" placeholder="฿" style="width:64px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px;color:var(--text);font-size:14px;text-align:center;outline:none">
+      <button onclick="editProdsAdd()" style="background:var(--accent);color:#000;border:none;border-radius:10px;padding:7px 14px;font-weight:800;font-size:20px;cursor:pointer;line-height:1">+</button>
+    </div>
+  </div>
+  <button onclick="saveEditProds()" class="btn btn-green" style="margin-top:16px">💾 บันทึก</button>
+  <button onclick="goTab('sell')" class="btn btn-outline">← กลับ</button>
+</div>
+
+<!-- PAY -->
+<div id="payScreen" class="screen">
+  <!-- ซ้าย: รายการที่สั่ง -->
+  <div id="pay-left">
+    <div style="font-size:18px;font-weight:800;margin-bottom:14px;padding-top:4px">🧾 รายการที่สั่ง</div>
+    <div id="payCartSummary" class="card" style="display:none;padding:12px 14px;flex:1"></div>
+    <button onclick="goTab('sell')" class="btn btn-outline" style="margin-top:14px">← กลับแก้ออร์เดอร์</button>
+  </div>
+
+  <!-- ขวา: ระบบชำระเงิน -->
+  <div id="pay-right">
+    <!-- โหมดเงินสด -->
+    <div id="payCashPanel" style="display:none">
+      <div class="card" style="text-align:center;margin-top:0">
+        <div style="font-size:13px;color:var(--muted)">ยอดที่ต้องชำระ</div>
+        <div id="cashDueEl" style="font-size:44px;font-weight:800;color:var(--green)">0฿</div>
+      </div>
+      <div class="lbl">ลูกค้าให้เงินมา</div>
+      <div class="card">
+        <div style="font-size:28px;font-weight:800;text-align:center;color:var(--text);margin-bottom:12px" id="cashGivenEl">0฿</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px">
+          <button onclick="addDenom(1)"   class="denom-btn">1</button>
+          <button onclick="addDenom(5)"   class="denom-btn">5</button>
+          <button onclick="addDenom(10)"  class="denom-btn">10</button>
+          <button onclick="addDenom(20)"  class="denom-btn">20</button>
+          <button onclick="addDenom(50)"  class="denom-btn" style="grid-column:span 2">50</button>
+          <button onclick="addDenom(100)" class="denom-btn" style="grid-column:span 2">100</button>
+        </div>
+        <button onclick="resetDenom()" style="width:100%;background:none;border:1px solid var(--border);border-radius:10px;padding:8px;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer">🔄 รีเซ็ต</button>
+      </div>
+      <div id="changeBox" style="display:none">
+        <div class="lbl">เงินทอน</div>
+        <div class="card" style="text-align:center;padding:20px">
+          <div style="font-size:13px;color:var(--muted)">ทอน</div>
+          <div id="changeEl" style="font-size:52px;font-weight:800;color:var(--yellow)">0฿</div>
+        </div>
+      </div>
+      <button onclick="confirmCashPay()" id="cashConfirmBtn" class="btn btn-green" style="margin-top:10px;opacity:.4" disabled>✔ ยืนยันการชำระ</button>
+    </div>
+
+    <!-- โหมดโอน/ผสม -->
+    <div id="payXferPanel" style="display:none">
+      <div class="card" style="text-align:center;margin-top:0">
+        <div style="font-size:18px;font-weight:800">📲 QR พร้อมเพย์ล็อคราคา</div>
+        <div style="color:var(--muted);font-size:13px;margin:2px 0 14px">ให้ลูกค้าสแกน — ยอดถูกล็อคอัตโนมัติ 🔒</div>
+        <div style="background:#fff;border-radius:18px;padding:12px;display:inline-block;margin:0 auto;box-shadow:0 4px 20px #0004">
+          <div id="payQrBox" style="width:200px;height:200px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center"></div>
+        </div>
+        <div id="payQrFallbackBox" style="display:none;width:200px;height:200px;margin:0 auto;border-radius:14px;overflow:hidden"></div>
+        <div id="qrLockBadge" style="display:none;background:#1a3a1a;border:1px solid var(--green);border-radius:10px;padding:10px 20px;margin:14px auto 0;align-items:center;gap:8px;justify-content:center">
+          <span style="font-size:16px">🔒</span>
+          <span style="font-size:13px;color:var(--green);font-weight:700">ล็อคยอด</span>
+          <span id="qrLockAmtLabel" style="font-size:22px;font-weight:800;color:var(--green)">0฿</span>
+        </div>
+        <div id="xferOnlyAmt" style="display:none;background:#1a2535;border:1px solid var(--accent);border-radius:12px;padding:14px 10px;text-align:center;margin-top:10px">
+          <div style="font-size:11px;color:var(--muted)">📲 ยอดโอน</div>
+          <div id="payAmtEl" style="font-size:36px;font-weight:800;color:var(--accent)">0฿</div>
+        </div>
+        <div id="mixAmtGrid" style="display:none;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+          <div style="background:#1a2d1a;border:1px solid var(--green);border-radius:12px;padding:12px 10px;text-align:center">
+            <div style="font-size:11px;color:var(--muted)">💵 เงินสด</div>
+            <div id="payCashAmtEl" style="font-size:30px;font-weight:800;color:var(--green)">0฿</div>
+          </div>
+          <div style="background:#1a2535;border:1px solid var(--accent);border-radius:12px;padding:12px 10px;text-align:center">
+            <div style="font-size:11px;color:var(--muted)">📲 โอน</div>
+            <div id="payXferMixEl" style="font-size:30px;font-weight:800;color:var(--accent)">0฿</div>
+          </div>
+        </div>
+      </div>
+      <div id="mixInputSection" style="display:none">
+        <div class="lbl">บันทึกการชำระ</div>
+        <div class="card">
+          <div style="display:flex;gap:10px;margin-bottom:8px">
+            <div style="flex:1">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:5px">💵 เงินสด (฿)</div>
+              <div id="inCashDisp" onclick="openNumpad('inCash','เงินสด (฿)')"
+                style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:20px;font-weight:700;text-align:center;cursor:pointer;min-height:48px">0</div>
+              <input type="hidden" id="inCash" value="0">
+            </div>
+            <div style="flex:1">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:5px">📲 โอน (฿)</div>
+              <div id="inXferDisp" onclick="openNumpad('inXfer','เงินโอน (฿)')"
+                style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:20px;font-weight:700;text-align:center;cursor:pointer;min-height:48px">0</div>
+              <input type="hidden" id="inXfer" value="0">
+            </div>
+          </div>
+          <div id="payWarnEl" style="display:none;font-size:13px;color:var(--yellow);text-align:center;margin-bottom:8px"></div>
+          <button onclick="confirmPay()" class="btn btn-green" style="margin-top:4px">✔ ยืนยันการชำระ</button>
+        </div>
+      </div>
+      <div id="xferConfirmSection" style="display:none">
+        <button onclick="confirmPay()" class="btn btn-green" style="margin-top:14px">✔ ยืนยันการชำระ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SET STOCK -->
+<div id="stockScreen" class="screen">
+  <div style="text-align:center;padding:20px 0 14px">
+    <div style="font-size:20px;font-weight:800">📦 ตั้งค่าสต็อก</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:3px">ใส่จำนวนที่มีอยู่ตอนนี้</div>
+  </div>
+  <div id="stockInputEl"></div>
+  <button onclick="saveStock()" class="btn btn-green" style="margin-top:16px">✅ บันทึก</button>
+  <button onclick="goTab('sell')" class="btn btn-outline">← กลับ</button>
+</div>
+
+
+<!-- LOG -->
+<div id="logScreen" class="screen">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0 4px">
+    <div style="font-size:18px;font-weight:800">📝 ประวัติการขาย</div>
+    <span id="logCountEl" style="font-size:12px;color:var(--muted);background:var(--card2);padding:4px 10px;border-radius:20px;border:1px solid var(--border)"></span>
+  </div>
+  <div id="logListEl"></div>
+  <div id="logEmptyEl" style="text-align:center;color:var(--muted);padding:40px 0;font-size:14px;display:none">ยังไม่มีรายการ</div>
+</div>
+
+<!-- EDIT LOG ENTRY -->
+<div id="editLogScreen" class="screen">
+  <div style="text-align:center;padding:20px 0 10px">
+    <div style="font-size:20px;font-weight:800">✏️ แก้ไขรายการ</div>
+    <div id="editLogTimeEl" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+  </div>
+  <div class="lbl">ประเภทการชำระ</div>
+  <div style="display:flex;gap:8px;margin-bottom:4px">
+    <button id="elBtnCash" onclick="setEditPayType('cash')" class="shift-btn on">💵 เงินสด</button>
+    <button id="elBtnXfer" onclick="setEditPayType('xfer')" class="shift-btn">📲 โอน</button>
+    <button id="elBtnMix"  onclick="setEditPayType('mix')"  class="shift-btn">🔀 ผสม</button>
+  </div>
+  <div id="editMixRow" style="display:none">
+    <div class="lbl">เงินสด + เงินโอน</div>
+    <div class="card" style="padding:12px">
+    <div style="display:flex;gap:10px">
+      <div style="flex:1">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">💵 เงินสด</div>
+        <div id="elCashAmtDisp" onclick="openNumpad('elCashAmt','เงินสด (฿)')"
+          style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px;color:var(--text);font-size:18px;font-weight:700;text-align:center;cursor:pointer;min-height:44px">0</div>
+        <input type="hidden" id="elCashAmt" value="0">
+      </div>
+      <div style="flex:1">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">📲 โอน</div>
+        <div id="elXferAmtDisp" onclick="openNumpad('elXferAmt','เงินโอน (฿)')"
+          style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px;color:var(--text);font-size:18px;font-weight:700;text-align:center;cursor:pointer;min-height:44px">0</div>
+        <input type="hidden" id="elXferAmt" value="0">
+      </div>
+    </div>
+    <div id="editMixWarn" style="display:none;font-size:13px;text-align:center;margin-top:8px;font-weight:700"></div>
+    </div>
+  </div>
+  <div class="lbl">รายการสินค้า</div>
+  <div id="editLogItemsEl"></div>
+  <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+    <span style="font-size:14px;color:var(--muted)">รวม</span>
+    <span id="editLogTotalEl" style="font-size:22px;font-weight:800;color:var(--green)"></span>
+  </div>
+  <div class="lbl">📝 หมายเหตุ (ไม่บังคับ)</div>
+  <input id="editLogNote" placeholder="เช่น ลูกค้าขาประจำ, โอนช้า…" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:4px">
+  <button onclick="saveEditLog()" class="btn btn-green" style="margin-top:14px">💾 บันทึกการแก้ไข</button>
+  <button onclick="deleteLogEntry()" class="btn" style="margin-top:6px;background:#2d1515;color:var(--red);border:1px solid var(--red)">🗑 ลบรายการนี้</button>
+  <button onclick="goTab('log')" class="btn btn-outline">← กลับ</button>
+</div>
+
+
+<!-- HISTORY LIST -->
+<div id="histScreen" class="screen">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0 4px">
+    <div style="font-size:18px;font-weight:800">📅 ประวัติกะ</div>
+  </div>
+  <div id="histLiveCard"></div>
+  <div id="histListEl"></div>
+  <div id="histEmptyEl" style="text-align:center;color:var(--muted);padding:40px 0;font-size:14px;display:none">ยังไม่มีประวัติ<br><span style="font-size:12px">จะบันทึกอัตโนมัติเมื่อเริ่มกะใหม่</span></div>
+</div>
+
+<!-- HISTORY DETAIL -->
+<div id="histDetailScreen" class="screen">
+  <div style="padding:14px 0 4px;display:flex;align-items:center;gap:10px">
+    <button onclick="goTab('history')" style="background:none;border:none;color:var(--accent);font-size:15px;cursor:pointer;padding:0">← กลับ</button>
+    <div style="font-size:18px;font-weight:800;flex:1">รายละเอียดกะ</div>
+    <button onclick="deleteHistEntry()" style="background:none;border:1px solid var(--red);color:var(--red);border-radius:10px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer">🗑 ลบ</button>
+  </div>
+  <div id="histDetailContent"></div>
+</div>
+
+<!-- SUMMARY -->
+<div id="summaryScreen" class="screen">
+  <!-- ซ้าย: ยอดรวม, เงินสด/โอน, ขายไปบ้าง, ของเหลือ -->
+  <div id="sum-left">
+    <div class="card" style="text-align:center;margin-top:8px;padding:18px 16px;position:relative;overflow:hidden">
+      <div id="sHdr" style="font-size:13px;color:var(--muted)"></div>
+      <div id="sBottles" style="font-size:15px;color:var(--muted);margin-top:4px"></div>
+      <div id="sMoney" style="font-size:46px;font-weight:800;color:var(--green);line-height:1.1"></div>
+      <span id="goalFloat" style="position:absolute;top:10px;right:12px;font-size:13px;font-weight:800;letter-spacing:.2px"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+      <div class="card" style="text-align:center;padding:14px 10px">
+        <div style="font-size:11px;color:var(--muted)">💵 เงินสด</div>
+        <div id="sCash" style="font-size:26px;font-weight:800;color:var(--green);margin-top:4px"></div>
+      </div>
+      <div class="card" style="text-align:center;padding:14px 10px">
+        <div style="font-size:11px;color:var(--muted)">📲 เงินโอน</div>
+        <div id="sXfer" style="font-size:26px;font-weight:800;color:var(--accent);margin-top:4px"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">📦 ขายไปบ้าง</div>
+      <div id="sSoldList"></div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div id="sStockTitle" style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">📋 ของเหลือ</div>
+      <div id="sStockList"></div>
+    </div>
+    <!-- ปุ่ม copy + เริ่มกะใหม่ อยู่ที่เดิม (ล่างสุดซ้าย) -->
+    <button onclick="copySummary()" class="btn btn-yellow" style="margin-top:14px;padding:16px;font-size:17px">📋 Copy ส่งเจ้าของร้าน</button>
+    <button onclick="confirmNewShift()" class="btn btn-outline">🔄 เริ่มกะใหม่</button>
+  </div>
+
+  <!-- ขวา: หักสต็อก, note -->
+  <div id="sum-right">
+    <div id="sDeductSection" class="card" style="margin-top:8px;display:none;border-color:var(--yellow)">
+      <div style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📦 หักสต็อก / หมายเหตุพิเศษ</div>
+      <div id="sDeductList"></div>
+    </div>
+    <button onclick="openDeductModal()" class="btn btn-outline" style="margin-top:8px;font-size:14px;border-color:var(--yellow);color:var(--yellow)">📦 หักสต็อก (เบิกใช้/Grab/ของเสีย)</button>
+    <button onclick="openSheetsModal()" class="btn btn-outline" style="margin-top:10px;font-size:14px;border-color:var(--accent);color:var(--accent)" id="sheetsBtnSummary">📊 Google Sheets</button>
+    <div class="card" style="margin-top:20px;border-color:var(--border)">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📝 Note เพิ่มเติม</div>
+      <div id="sNoteList"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="sNoteInput" placeholder="จดอะไรก็ได้ เช่น ลืมนับ, ของขาด…" onkeydown="if(event.key==='Enter')addNote()"
+          style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;outline:none"/>
+        <button onclick="addNote()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer">ส่ง</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- NUMPAD OVERLAY -->
+<div id="numpad-overlay" onclick="npBgClose(event)">
+  <div id="numpad-box">
+    <div id="numpad-label">ใส่จำนวน</div>
+    <div id="numpad-display">0</div>
+    <div class="np-grid">
+      <button class="np-btn" onclick="npKey('7')">7</button>
+      <button class="np-btn" onclick="npKey('8')">8</button>
+      <button class="np-btn" onclick="npKey('9')">9</button>
+      <button class="np-btn" onclick="npKey('4')">4</button>
+      <button class="np-btn" onclick="npKey('5')">5</button>
+      <button class="np-btn" onclick="npKey('6')">6</button>
+      <button class="np-btn" onclick="npKey('1')">1</button>
+      <button class="np-btn" onclick="npKey('2')">2</button>
+      <button class="np-btn" onclick="npKey('3')">3</button>
+      <button class="np-btn np-cancel" onclick="npClose()">ยกเลิก</button>
+      <button class="np-btn" onclick="npKey('0')">0</button>
+      <button class="np-btn np-del" onclick="npDel()">⌫</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <button class="np-btn np-ok" style="flex:1" onclick="npConfirm()">✔ ตกลง</button>
+      <button id="npNextBtn" class="np-btn np-next" style="flex:1;display:none" onclick="npNext()">ถัดไป →</button>
+    </div>
+  </div>
+</div>
+
+<div id="flash">✅ บันทึกแล้ว!</div>
+<div id="toast"></div>
+
+<script>
+const DEF = [
+  {id:'yogurt',    name:'โยเกิร์ต',   emoji:'🥛',price:70,color:'#e8e8e8',group:'color'},
+  {id:'apple',     name:'แอปเปิ้ล',   emoji:'🍏',price:70,color:'#4caf50',group:'color'},
+  {id:'grape',     name:'องุ่น',       emoji:'🍇',price:70,color:'#9c27b0',group:'color'},
+  {id:'strawberry',name:'สตรอเบอรี่', emoji:'🍓',price:70,color:'#f44336',group:'color'},
+  {id:'tuam_red',  name:'ฝาแดง',      emoji:'🔴',price:80,color:'#f44336',group:'tuam'},
+  {id:'tuam_gray', name:'ฝาเทา',      emoji:'⚫',price:70,color:'#9e9e9e',group:'tuam'},
+];
+const TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const SHORT={'สตรอเบอรี่':'สตอ','แอปเปิ้ล':'แอป'};
+
+let prods = JSON.parse(localStorage.getItem('prods')||'null')||DEF;
+let txLog = []; // [{id, time, items:[{id,qty,price}], cashAmt, xferAmt, total}]
+let startDate = null; // locked date string when shift started
+let stock={}, sold={}, cart={};
+let cashT=0, xferT=0, shiftN='เช้า', qrURL=localStorage.getItem('qrURL')||'';
+let ppPhone = localStorage.getItem('ppPhone')||''; // เบอร์พร้อมเพย์
+let payTotal=0;
+
+const $ = id => document.getElementById(id);
+const today = () => { const d=startDate?new Date(startDate):new Date(); return `${d.getDate()} ${TM[d.getMonth()]} ${d.getFullYear()+543}`; };
+const fmt = n => n.toLocaleString()+'฿';
+const uid = () => 'p_'+Math.random().toString(36).slice(2,8);
+
+function showToast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+function showFlash(){ const f=$('flash'); f.classList.add('show'); setTimeout(()=>f.classList.remove('show'),900); }
+
+// ── SOUND ──────────────────────────────────────────────────────
+function playClick(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    // bubble pop — sine wave ขึ้นเร็วแล้วหาย
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type='sine';
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.setValueAtTime(300,ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(600,ctx.currentTime+0.03);
+    o.frequency.exponentialRampToValueAtTime(200,ctx.currentTime+0.12);
+    g.gain.setValueAtTime(0,ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.18,ctx.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.13);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime+0.14);
+  }catch(e){}
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+// ── QR ─────────────────────────────────────────────────────────
+function loadQR(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{ qrURL=e.target.result; localStorage.setItem('qrURL',qrURL); renderSetupQR(); };
+  r.readAsDataURL(f);
+}
+function removeQR(){ qrURL=''; localStorage.removeItem('qrURL'); renderSetupQR(); }
+function renderSetupQR(){
+  // update phone display
+  const disp=$('ppPhoneDisplay');
+  if(disp) disp.textContent = ppPhone ? ppPhone.replace(/(\d{3})(\d{3})(\d{4})/,'$1-$2-$3') : '— ยังไม่ได้ตั้งค่า';
+  // pre-fill input
+  const ph=$('ppPhone'); if(ph && ppPhone) ph.value=ppPhone;
+  const box=$('setupQrBox'), btn=$('rmQrBtn');
+  if(qrURL){
+    box.innerHTML=`<img src="${qrURL}" alt="QR">`;
+    box.style.border='none'; box.style.background='none';
+    btn.style.display='inline-block';
+  } else {
+    box.style.border='2px dashed var(--border)'; box.style.background='var(--card2)';
+    box.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font-size:48px">📷</span><p style="font-size:12px;color:var(--muted)">แตะเพื่ออัพโหลด QR</p><p style="font-size:11px;color:var(--muted)">(ไม่บังคับ)</p></div>`;
+    btn.style.display='none';
+  }
+}
+function togglePhoneEdit(){
+  const sec=$('ppEditSection'), chev=$('ppChevron');
+  const open = sec.style.display==='block';
+  sec.style.display = open?'none':'block';
+  chev.style.transform = open?'':'rotate(90deg)';
+  if(!open){ const ph=$('ppPhone'); if(ph){ ph.value=ppPhone||''; ph.focus(); } }
+}
+function ppPhoneInput(el){
+  // กรองเฉพาะตัวเลข
+  el.value = el.value.replace(/[^0-9]/g,'');
+  const err=$('ppPhoneErr'); if(err) err.style.display='none';
+  // highlight border
+  const valid = /^0[689]\d{8}$/.test(el.value);
+  el.style.borderColor = el.value.length===10 ? (valid?'var(--green)':'var(--red)') : 'var(--border)';
+  el.style.color = el.value.length===10 ? (valid?'var(--green)':'var(--red)') : 'var(--text)';
+}
+function savePpPhone(){
+  const val=($('ppPhone').value||'').replace(/[^0-9]/g,'');
+  const err=$('ppPhoneErr');
+  if(!val){ err.textContent='⚠️ กรุณาใส่เบอร์'; err.style.display='block'; return; }
+  if(val.length!==10){ err.textContent='⚠️ ต้องครบ 10 หลัก'; err.style.display='block'; return; }
+  if(!/^0[689]\d{8}$/.test(val)){ err.textContent='⚠️ เบอร์ต้องขึ้นต้นด้วย 06, 08 หรือ 09'; err.style.display='block'; return; }
+  ppPhone=val; localStorage.setItem('ppPhone',val);
+  err.style.display='none';
+  togglePhoneEdit();
+  renderSetupQR();
+  showToast('✅ บันทึกเบอร์แล้ว');
+}
+
+// ── WAKE LOCK ──────────────────────────────────────────────────
+let _wakeLock = null;
+async function requestWakeLock(){
+  if(!('wakeLock' in navigator)) return;
+  try{ _wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+}
+function releaseWakeLock(){
+  if(_wakeLock){ _wakeLock.release(); _wakeLock=null; }
+}
+// re-acquire ถ้า tab กลับมา visible
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible' && $('payXferPanel') && $('payXferPanel').style.display!=='none') requestWakeLock();
+});
+
+// ── SETUP ──────────────────────────────────────────────────────
+function selShift(btn,name){
+  document.querySelectorAll('.shift-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); shiftN=name;
+}
+function renderSetupProds(){
+  $('setupProdList').innerHTML=prods.map(p=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:7px">
+      <span style="font-size:18px">${p.emoji}</span>
+      <span style="flex:1;font-weight:600;font-size:14px">${p.name}</span>
+      <input type="number" inputmode="numeric" value="${p.price}" min="1"
+        onchange="setupChgPrice('${p.id}',this.value)"
+        style="width:70px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 4px;color:var(--accent);font-size:15px;font-weight:700;text-align:center;outline:none">
+      <span style="font-size:12px;color:var(--muted)">฿</span>
+      ${!DEF.find(x=>x.id===p.id)?`<button onclick="setupRmProd('${p.id}')" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;padding:0 2px;line-height:1">✕</button>`:''}
+    </div>`).join('');
+}
+function setupChgPrice(id,val){
+  const v=parseInt(val); if(!v||v<1) return;
+  const p=prods.find(x=>x.id===id); if(p){ p.price=v; localStorage.setItem('prods',JSON.stringify(prods)); }
+}
+function setupRmProd(id){
+  prods=prods.filter(p=>p.id!==id); localStorage.setItem('prods',JSON.stringify(prods)); renderSetupProds();
+}
+function setupAddProd(){
+  const emoji=$('sEmoji').value||'📦', name=$('sName').value.trim(), price=parseInt($('sPrice').value);
+  if(!name||!price){ showToast('ใส่ชื่อและราคาด้วยนะ'); return; }
+  prods.push({id:uid(),name,emoji,price,color:'#888',group:'other'});
+  localStorage.setItem('prods',JSON.stringify(prods));
+  $('sName').value=''; $('sPrice').value=''; $('sEmoji').value='📦';
+  renderSetupProds();
+}
+function startClock(){
+  if(window._clockTick) clearInterval(window._clockTick);
+  const tick=()=>{ const n=new Date(); const hh=String(n.getHours()).padStart(2,'0'),mm=String(n.getMinutes()).padStart(2,'0'); $('clockLabel').textContent=hh+':'+mm; };
+  tick(); window._clockTick=setInterval(tick,1000);
+}
+function startShift(){
+  // save phone if entered and valid
+  const ph = ($('ppPhone')?$('ppPhone').value||'':'').replace(/[^0-9]/g,'');
+  if(ph.length===10 && /^0[689]/.test(ph)){ ppPhone=ph; localStorage.setItem('ppPhone',ph); }
+  sold={}; cart={}; cashT=0; xferT=0; stock={}; txLog=[]; startDate=new Date().toISOString();
+  prods.forEach(p=>sold[p.id]=0);
+  startClock();
+  $('topbar').style.display='flex';
+  $('tabs').style.display='flex';
+  renderSell(); showScreen('sellScreen');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  saveSession();
+}
+
+// ── SELL ───────────────────────────────────────────────────────
+function renderSell(){
+  const groups=[{k:'color',l:'🥤 น้ำสี'},{k:'tuam',l:'🍶 น้ำท่อม'},{k:'other',l:'📦 สินค้าอื่น'}];
+  let html='';
+  groups.forEach(g=>{
+    const ps=prods.filter(p=>p.group===g.k); if(!ps.length) return;
+    html+=`<div class="lbl" style="margin-top:10px">${g.l}</div><div class="prod-grid">`;
+    ps.forEach(p=>{
+      const qty=cart[p.id]||0;
+      const sk=stock[p.id]!=null; const sl=sk?stock[p.id]:null;
+      const oos=sk&&sl<=0;
+      html+=`<div class="prod-card${qty>0?' in-cart':''}" onclick="${oos?'':'addC(\''+p.id+'\')'}" style="cursor:${oos?'not-allowed':'pointer'};opacity:${oos?'.4':'1'}">
+        ${qty>0?`<div class="prod-badge">${qty}</div>`:''}
+        <div style="font-size:34px">${p.emoji}</div>
+        <div style="font-weight:700;font-size:14px;margin-top:5px">${p.name}</div>
+        <div style="color:var(--accent);font-size:13px;font-weight:600;margin-top:2px">${p.price}฿</div>
+        <div style="color:var(--muted);font-size:11px;margin-top:1px">${sk?'เหลือ '+sl+' ขวด':'กดเพื่อขาย'}</div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  $('prodArea').innerHTML=html;
+  renderCart();
+}
+function addC(id){
+  const sl=stock[id]; const sk=sl!=null;
+  if(sk&&(cart[id]||0)>=sl){ showToast('สต็อกหมด!'); return; }
+  cart[id]=(cart[id]||0)+1; saveSession(); playClick(); renderSell();
+}
+function chgQty(id,d){
+  cart[id]=(cart[id]||0)+d;
+  if(cart[id]<=0) delete cart[id];
+  else { const sl=stock[id]; if(sl!=null&&cart[id]>sl) cart[id]=sl; }
+  saveSession(); renderSell();
+}
+function clearCart(){ cart={}; saveSession(); updateCartBadge(); renderSell(); }
+function updateCartBadge(){
+  const total=Object.values(cart).reduce((s,q)=>s+q,0);
+  const badge=$('cartTabBadge');
+  if(badge){ if(total>0){ badge.textContent=total>99?'99+':total; badge.classList.add('show'); } else { badge.classList.remove('show'); } }
+  const lbl=$('cartCountLabel');
+  if(lbl){ if(total>0){ lbl.textContent=total+' ชิ้น'; lbl.style.display='inline'; } else { lbl.style.display='none'; } }
+}
+function renderCart(){
+  const ids=Object.keys(cart); const el=$('cartEl');
+  const tot=$('cartTotalEl'); const pb=$('payBtnsEl'); const cb=$('clrBtn');
+  if(!ids.length){
+    el.innerHTML='<div style="text-align:center;color:var(--muted);font-size:14px;padding:10px 0">ยังไม่มีสินค้า — กดเพื่อเพิ่ม</div>';
+    tot.textContent='0฿'; pb.style.display='none'; cb.style.visibility='hidden'; updateCartBadge(); return;
+  }
+  let total=0;
+  el.innerHTML=ids.map(id=>{
+    const p=prods.find(x=>x.id===id); if(!p) return '';
+    const sub=cart[id]*p.price; total+=sub;
+    return `<div class="cart-row">
+      <span style="font-size:18px">${p.emoji}</span>
+      <span style="flex:1;font-weight:600;font-size:14px">${p.name}</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="qty-btn" onclick="chgQty('${id}',-1)">−</button>
+        <span style="font-weight:700;font-size:16px;min-width:22px;text-align:center">${cart[id]}</span>
+        <button class="qty-btn" onclick="chgQty('${id}',1)">+</button>
+      </div>
+      <span style="font-size:13px;color:var(--accent);font-weight:600;min-width:52px;text-align:right">${sub}฿</span>
+    </div>`;
+  }).join('');
+  tot.textContent=total.toLocaleString()+'฿';
+  pb.style.display='flex'; cb.style.visibility='visible';
+  updateCartBadge();
+}
+
+// ── PAY ────────────────────────────────────────────────────────
+let cashGiven=0;
+function openPay(mode){
+  payTotal=Object.keys(cart).reduce((s,id)=>s+cart[id]*(prods.find(p=>p.id===id)?.price||0),0);
+  // render cart summary
+  const rows=Object.keys(cart).map(id=>{
+    const p=prods.find(x=>x.id===id); if(!p) return '';
+    const qty=cart[id], sub=qty*p.price;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:14px">${p.name} <span style="color:var(--muted)">×${qty}</span></span>
+      <span style="font-size:14px;font-weight:700">${sub.toLocaleString()}฿</span>
+    </div>`;
+  }).join('');
+  $('payCartSummary').innerHTML=rows+`<div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px"><span style="font-size:13px;color:var(--muted);font-weight:700">รวม</span><span style="font-size:18px;font-weight:800;color:var(--green)">${payTotal.toLocaleString()}฿</span></div>`;
+  $('payCartSummary').style.display='block';
+  $('payCashPanel').style.display='none';
+  $('payXferPanel').style.display='none';
+  showScreen('payScreen');
+
+  if(mode==='cash'){
+    cashGiven=0;
+    $('cashDueEl').textContent=payTotal.toLocaleString()+'฿';
+    $('cashGivenEl').textContent='0฿';
+    $('changeBox').style.display='none';
+    const btn=$('cashConfirmBtn'); btn.disabled=true; btn.style.opacity='.4';
+    $('payCashPanel').style.display='block';
+  } else {
+    if(mode==='xfer'){
+      setPayVal('inXfer',payTotal); setPayVal('inCash',0);
+      $('payAmtEl').textContent=payTotal.toLocaleString()+'฿';
+      $('xferOnlyAmt').style.display='block';
+      $('mixAmtGrid').style.display='none';
+      $('mixInputSection').style.display='none';
+      $('xferConfirmSection').style.display='block';
+    } else {
+      setPayVal('inCash',0); setPayVal('inXfer',0);
+      $('xferOnlyAmt').style.display='none';
+      $('mixAmtGrid').style.display='grid';
+      $('mixInputSection').style.display='block';
+      $('xferConfirmSection').style.display='none';
+      if($('payCashAmtEl')) $('payCashAmtEl').textContent='0฿';
+      if($('payXferMixEl')) $('payXferMixEl').textContent='0฿';
+    }
+    // Reset lock badge
+    const badge=$('qrLockBadge'); if(badge) badge.style.display='none';
+    // Generate PromptPay QR if phone available, else fallback image
+    if(ppPhone){
+      $('payQrBox').style.display='flex';
+      if(mode==='xfer'){
+        generatePromptPayQR(payTotal);
+      } else {
+        // mix: รอให้ใส่ยอดโอนก่อน
+        $('payQrBox').innerHTML='<p style="color:var(--muted);font-size:13px;padding:20px;text-align:center">📲 ใส่ยอดโอนก่อน<br>QR จะ generate ให้อัตโนมัติ</p>';
+      }
+      const fb=$('payQrFallbackBox'); if(fb) fb.style.display='none';
+    } else if(qrURL){
+      $('payQrBox').style.display='none';
+      const fb=$('payQrFallbackBox');
+      if(fb){ fb.style.display='block'; fb.innerHTML=`<img src="${qrURL}" style="width:100%;height:100%;object-fit:contain;border-radius:12px">`; }
+    } else {
+      $('payQrBox').style.display='flex';
+      $('payQrBox').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px"><span style="font-size:36px">📱</span><p style="font-size:12px;color:var(--muted);text-align:center">ไม่มี QR<br>ใส่เบอร์พร้อมเพย์ในหน้าตั้งค่า</p></div>`;
+    }
+    $('payWarnEl').style.display='none';
+    $('payXferPanel').style.display='block';
+    requestWakeLock();
+  }
+}
+function addDenom(val){
+  cashGiven+=val;
+  $('cashGivenEl').textContent=cashGiven.toLocaleString()+'฿';
+  const change=cashGiven-payTotal;
+  if(cashGiven>=payTotal){
+    $('changeBox').style.display='block';
+    $('changeEl').textContent=change.toLocaleString()+'฿';
+    const btn=$('cashConfirmBtn'); btn.disabled=false; btn.style.opacity='1';
+  } else {
+    $('changeBox').style.display='none';
+    const btn=$('cashConfirmBtn'); btn.disabled=true; btn.style.opacity='.4';
+  }
+}
+function resetDenom(){
+  cashGiven=0;
+  $('cashGivenEl').textContent='0฿';
+  $('changeBox').style.display='none';
+  const btn=$('cashConfirmBtn'); btn.disabled=true; btn.style.opacity='.4';
+}
+function confirmCashPay(){
+  const items=Object.keys(cart).map(id=>({id,qty:cart[id],price:prods.find(p=>p.id===id)?.price||0}));
+  Object.keys(cart).forEach(id=>{
+    sold[id]=(sold[id]||0)+cart[id];
+    if(stock[id]!=null) stock[id]=Math.max(0,stock[id]-cart[id]);
+  });
+  txLog.push({id:uid(),time:new Date().toISOString(),items,cashAmt:payTotal,xferAmt:0,total:payTotal});
+  cashT+=payTotal; cart={}; cashGiven=0; payTotal=0;
+  saveSession();
+  showScreen('sellScreen'); renderSell(); showFlash();
+}
+function chkWarn(){
+  const c=parseInt($('inCash').value)||0, x=parseInt($('inXfer').value)||0;
+  const w=$('payWarnEl'); const sum=c+x; const diff=payTotal-sum;
+  if(sum>0&&sum!==payTotal){
+    if(diff>0) w.textContent=`⚠️ ขาดอีก ${diff.toLocaleString()}฿`;
+    else w.textContent=`⚠️ เกินมา ${Math.abs(diff).toLocaleString()}฿`;
+    w.style.display='block';
+  } else w.style.display='none';
+}
+// update display divs when openPay resets values
+function setPayVal(id, val){
+  const h=document.getElementById(id); if(h) h.value=val;
+  const d=document.getElementById(id+'Disp'); if(d) d.textContent=val||'0';
+}
+function confirmPay(){
+  const c=parseInt($('inCash').value)||0, x=parseInt($('inXfer').value)||0;
+  if(c+x===0){ showToast('⚠️ ยังไม่ได้ใส่ยอดเลย'); return; }
+  if(c+x!==payTotal){
+    const diff=payTotal-(c+x);
+    showToast(diff>0?`⚠️ ขาดอีก ${diff.toLocaleString()}฿`:`⚠️ เกินมา ${Math.abs(diff).toLocaleString()}฿`);
+    return;
+  }
+  const items=Object.keys(cart).map(id=>({id,qty:cart[id],price:prods.find(p=>p.id===id)?.price||0}));
+  Object.keys(cart).forEach(id=>{
+    sold[id]=(sold[id]||0)+cart[id];
+    if(stock[id]!=null) stock[id]=Math.max(0,stock[id]-cart[id]);
+  });
+  txLog.push({id:uid(),time:new Date().toISOString(),items,cashAmt:c,xferAmt:x,total:c+x});
+  cashT+=c; xferT+=x; cart={}; payTotal=0;
+  saveSession();
+  releaseWakeLock();
+  // ── Clear Firebase display ──
+  if(window._fbClear) window._fbClear().catch(()=>{});
+  showScreen('sellScreen'); renderSell(); showFlash();
+}
+
+// ── SET STOCK ──────────────────────────────────────────────────
+function goSetStock(){
+  $('stockInputEl').innerHTML=prods.map(p=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px">
+      <span style="font-size:20px">${p.emoji}</span>
+      <div style="flex:1"><div style="font-weight:700">${p.name}</div>
+        <div style="font-size:12px;color:var(--muted)">${stock[p.id]!=null?'มีอยู่ '+stock[p.id]+' ขวด':'ยังไม่ได้ตั้งค่า'}</div>
+      </div>
+      <div onclick="openNumpad('si_${p.id}', '${p.name}', true)"
+        id="sid_${p.id}"
+        style="width:76px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:8px;color:${stock[p.id]!=null?'var(--text)':'var(--muted)'};font-size:18px;font-weight:700;text-align:center;cursor:pointer;min-height:44px">
+        ${stock[p.id]!=null?stock[p.id]:'?'}
+      </div>
+      <input type="hidden" id="si_${p.id}" value="${stock[p.id]!=null?stock[p.id]:''}">
+    </div>`).join('');
+  showScreen('stockScreen');
+}
+function saveStock(){
+  prods.forEach(p=>{
+    const el=document.getElementById('si_'+p.id); if(!el) return;
+    const v=el.value;
+    stock[p.id] = (v==='' || v==='null') ? null : (parseInt(v)||0);
+  });
+  // บันทึก _origStock (ยอดเริ่มกะ) เพื่อให้ saveEditLog/deleteLogEntry คำนวณ stock ย้อนกลับได้ถูก
+  if(!window._origStock) window._origStock={};
+  prods.forEach(p=>{
+    if(stock[p.id]!=null){
+      window._origStock[p.id] = stock[p.id] + (sold[p.id]||0);
+    }
+  });
+  saveSession(); goTab('sell'); showToast('✅ บันทึกสต็อกแล้ว');
+}
+
+// ── EDIT PRODS DURING SHIFT ────────────────────────────────────
+let tmpEditProds=[];
+function goEditProds(){
+  tmpEditProds=JSON.parse(JSON.stringify(prods));
+  renderEditProdList();
+  showScreen('editProdsScreen');
+}
+function renderEditProdList(){
+  $('editProdListEl').innerHTML=tmpEditProds.map(p=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:7px">
+      <span style="font-size:18px">${p.emoji}</span>
+      <span style="flex:1;font-weight:600;font-size:14px">${p.name}</span>
+      <input type="number" inputmode="numeric" value="${p.price}" min="1" id="ep_${p.id}"
+        style="width:70px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 4px;color:var(--accent);font-size:15px;font-weight:700;text-align:center;outline:none">
+      <span style="font-size:12px;color:var(--muted)">฿</span>
+      ${sold[p.id]>0?`<span style="font-size:11px;color:var(--muted);min-width:32px;text-align:right">ขาย ${sold[p.id]}</span>`:`<button onclick="epRm('${p.id}')" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;padding:0 2px;line-height:1">✕</button>`}
+    </div>`).join('');
+}
+function epRm(id){
+  tmpEditProds=tmpEditProds.filter(p=>p.id!==id); renderEditProdList();
+}
+function editProdsAdd(){
+  const emoji=$('epEmoji').value||'📦', name=$('epName').value.trim(), price=parseInt($('epPrice').value);
+  if(!name||!price){ showToast('ใส่ชื่อและราคาด้วยนะ'); return; }
+  tmpEditProds.push({id:uid(),name,emoji,price,color:'#888',group:'other'});
+  $('epName').value=''; $('epPrice').value=''; $('epEmoji').value='📦';
+  renderEditProdList();
+}
+function saveEditProds(){
+  tmpEditProds.forEach(p=>{
+    const el=$('ep_'+p.id); if(el){ const v=parseInt(el.value); if(v>0) p.price=v; }
+  });
+  prods=tmpEditProds;
+  prods.forEach(p=>{ if(sold[p.id]==null) sold[p.id]=0; });
+  localStorage.setItem('prods',JSON.stringify(prods));
+  goTab('sell'); showToast('✅ บันทึกแล้ว');
+}
+
+// ── SUMMARY ────────────────────────────────────────────────────
+function goTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',
+    (i===0&&tab==='sell')||(i===1&&tab==='log')||(i===2&&tab==='summary')||(i===3&&tab==='history')));
+  if(tab==='sell'){ renderSell(); showScreen('sellScreen'); }
+  if(tab==='log'){ renderLog(); showScreen('logScreen'); }
+  if(tab==='summary'){ renderSum(); showScreen('summaryScreen'); }
+  if(tab==='history'){ renderHistory(); showScreen('histScreen'); }
+}
+function renderSum(){
+  updateSheetsBtnLabel();
+  const tb=prods.reduce((s,p)=>s+(sold[p.id]||0),0);
+  const tm=cashT+xferT;
+  const si=prods.filter(p=>(sold[p.id]||0)>0);
+  const sk=prods.filter(p=>stock[p.id]!=null);
+  const tl=sk.reduce((s,p)=>s+stock[p.id],0);
+  $('sHdr').textContent=`📅 ${today()} · กะ${shiftN}`;
+  $('sBottles').textContent=`ขาย ${tb} ขวด`;
+  $('sMoney').textContent=tm.toLocaleString()+'฿';
+  $('sCash').textContent=fmt(cashT); $('sXfer').textContent=fmt(xferT);
+  // goal floating text
+  const GOAL=25;
+  const floatEl=$('goalFloat');
+  if(tb>=GOAL){
+    floatEl.className='done';
+    floatEl.textContent='🎉 400฿!';
+  } else {
+    floatEl.className='not-done';
+    floatEl.textContent=`⚡ ขาดอีก ${GOAL-tb} ขวด`;
+  }
+  $('sSoldList').innerHTML=si.length?si.map(p=>`
+    <div class="sum-row"><span>${p.emoji} ${p.name}</span>
+    <span style="font-weight:700">${sold[p.id]} <span style="font-size:12px;color:var(--muted)">(${(sold[p.id]*p.price).toLocaleString()}฿)</span></span></div>`).join(''):
+    '<div style="color:var(--muted);font-size:14px">ยังไม่มีการขาย</div>';
+  if(sk.length){
+    $('sStockTitle').textContent=`📋 เหลือในถัง: ${tl} ขวด`;
+    $('sStockList').innerHTML=sk.map(p=>`<div class="sum-row"><span>${p.emoji} ${p.name}</span><span style="font-weight:700">${stock[p.id]} ขวด</span></div>`).join('');
+  } else {
+    $('sStockTitle').textContent='📋 ของเหลือ';
+    $('sStockList').innerHTML='<div style="color:var(--muted);font-size:14px">ยังไม่ได้ตั้งค่าสต็อก</div>';
+  }
+  // deduct log
+  const deductSec = $('sDeductSection');
+  if(deductLog.length > 0){
+    deductSec.style.display='block';
+    $('sDeductList').innerHTML = deductLog.map((d,i)=>`<div style="font-size:13px;padding:8px 0;border-bottom:1px solid var(--border);color:var(--yellow);display:flex;align-items:center;gap:8px">
+      <span style="flex:1;line-height:1.5">${d.prodEmoji} ${d.prodName} ${d.qty} ขวด — ${d.note}</span>
+      <button onclick="editDeduct(${i})" style="background:var(--card2);border:1.5px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px;line-height:1;flex-shrink:0">✏️</button>
+      <button onclick="deleteDeduct(${i})" style="background:var(--card2);border:1.5px solid var(--red);color:var(--red);font-size:14px;font-weight:800;cursor:pointer;padding:4px 9px;border-radius:8px;line-height:1;flex-shrink:0">✕</button>
+    </div>`).join('');
+  } else {
+    deductSec.style.display='none';
+  }
+  // restore note list
+  renderNoteList();
+}
+
+// ── COPY SUMMARY (iOS-proof) ────────────────────────────────────
+function buildSummaryText(){
+  const d=startDate?new Date(startDate):new Date();
+  const tb=prods.reduce((s,p)=>s+(sold[p.id]||0),0);
+  const tm=cashT+xferT;
+  const si=prods.filter(p=>(sold[p.id]||0)>0);
+  const sk=prods.filter(p=>stock[p.id]!=null);
+  const tl=sk.reduce((s,p)=>s+stock[p.id],0);
+
+  let txt=`${d.getDate()} ${TM[d.getMonth()]} ${d.getFullYear()+543} กะ${shiftN}\n\n`;
+  txt+=`ขาย: ${tb} ขวด (${tm.toLocaleString()}฿)\n`;
+  txt+=`เงินสด: ${cashT.toLocaleString()}฿\n`;
+  txt+=`เงินโอน: ${xferT.toLocaleString()}฿\n`;
+  si.forEach(p=>{ txt+=(SHORT[p.name]||p.name)+' '+sold[p.id]+'\n'; });
+  if(sk.length){
+    txt+=`\nเหลือในถัง: ${tl} ขวด\n`;
+    sk.forEach(p=>{ txt+=`${p.name} ${stock[p.id]}\n`; });
+  }
+  if(deductLog.length){
+    txt+=`\n*************\n`;
+    deductLog.forEach(d=>{
+      const total = d.price ? d.price*d.qty+'฿' : '';
+      txt+=`-${d.note} ${d.prodName} ${d.qty} ขวด ${total}\n`;
+    });
+  }
+  if(noteLog&&noteLog.length){
+    noteLog.forEach(n=>{ txt+=`-${n.text}\n`; });
+  }
+  return txt.trimEnd();
+}
+
+function copySummary(){
+  const txt=buildSummaryText();
+  if(navigator.clipboard && typeof navigator.clipboard.writeText==='function'){
+    navigator.clipboard.writeText(txt)
+      .then(()=>showToast('✅ Copy แล้ว!'))
+      .catch(()=>showToast('❌ Copy ไม่ได้ ลองใหม่'));
+  } else {
+    showToast('❌ Browser ไม่รองรับ');
+  }
+}
+
+
+// ── LOG ────────────────────────────────────────────────────────
+function fmtTime(iso){
+  const d=new Date(iso);
+  return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+function payLabel(tx){
+  if(tx.xferAmt===0) return '<span style="color:var(--green)">💵 เงินสด</span>';
+  if(tx.cashAmt===0) return '<span style="color:var(--accent)">📲 โอน</span>';
+  return '<span style="color:var(--yellow)">🔀 ผสม</span>';
+}
+function renderLog(){
+  const el=$('logListEl'), em=$('logEmptyEl'), ct=$('logCountEl');
+  ct.textContent=txLog.length+' รายการ';
+  if(!txLog.length){ el.innerHTML=''; em.style.display='block'; return; }
+  em.style.display='none';
+  // newest first
+  el.innerHTML=[...txLog].reverse().map(tx=>{
+    const names=tx.items.map(it=>{
+      const p=prods.find(x=>x.id===it.id);
+      return `${p?p.emoji:'📦'} ${p?p.name:it.id} ×${it.qty}`;
+    }).join(', ');
+    return `<div onclick="openEditLog('${tx.id}')" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:12px">
+      <div style="flex:1">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:3px">${fmtTime(tx.time)} · ${payLabel(tx)}</div>
+        <div style="font-size:14px;font-weight:600">${names}</div>
+        ${tx.note?`<div style="font-size:12px;color:var(--yellow);margin-top:3px">📝 ${tx.note}</div>`:''}
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:20px;font-weight:800;color:var(--green)">${tx.total.toLocaleString()}฿</div>
+        <div style="font-size:11px;color:var(--muted)">แตะแก้ไข ›</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let deductLog = []; // [{time, prodId, prodName, qty, note}]
+const WAGE_BASE = 350, WAGE_BONUS = 400, WAGE_GOAL = 25;
+let wageOpt = 'A'; // 'A' = ตัดโอนก่อน, 'B' = ตัดเงินสดอย่างเดียว
+
+// ── DEDUCT STOCK ───────────────────────────────────────────────
+function openDeductModal(){
+  const sel = $('deductProdSel');
+  // แสดงเฉพาะสินค้าที่มีสต็อกตั้งไว้ (stock != null)
+  const stockedProds = prods.filter(p => stock[p.id] != null);
+  if(!stockedProds.length){
+    showToast('⚠️ ยังไม่ได้ตั้งค่าสต็อก'); return;
+  }
+  sel.innerHTML = stockedProds.map(p=>`<option value="${p.id}">${p.emoji} ${p.name} (${p.price}฿) เหลือ ${stock[p.id]} ขวด</option>`).join('');
+  $('deductNote').value = '';
+  const qtyH = $('deductQty'); qtyH.value = '1';
+  $('deductQtyDisp').textContent = '1';
+  $('deductModal').style.display = 'flex';
+}
+function deleteDeduct(i){
+  const d = deductLog[i];
+  // คืนสต็อก
+  if(stock[d.prodId] != null) stock[d.prodId] += d.qty;
+  deductLog.splice(i, 1);
+  saveSession();
+  renderSum();
+  showToast('🗑 ลบรายการหักแล้ว');
+}
+function editDeduct(i){
+  const d = deductLog[i];
+  const newNote = prompt('แก้ไข message:', d.note);
+  if(newNote === null) return;
+  if(!newNote.trim()){ showToast('ใส่เหตุผลด้วยนะ'); return; }
+  deductLog[i].note = newNote.trim();
+  saveSession();
+  renderSum();
+  showToast('✅ แก้ไขแล้ว');
+}
+function closeDeductModal(){ $('deductModal').style.display = 'none'; }
+function confirmDeduct(){
+  const prodId = $('deductProdSel').value;
+  const qty = parseInt($('deductQty').value) || 1;
+  const note = $('deductNote').value.trim();
+  const prod = prods.find(p=>p.id===prodId);
+  if(!prod){ showToast('เลือกสินค้าก่อน'); return; }
+  if(!note){ showToast('ใส่เหตุผลด้วยนะ'); return; }
+  // หักสต็อก (ถ้าตั้งสต็อกไว้ก็หัก ถ้าไม่มีก็บันทึกได้เลย)
+  if(stock[prodId] != null){
+    stock[prodId] = Math.max(0, stock[prodId] - qty);
+  }
+  // บันทึก deduct log (เก็บ price ณ ตอนที่หัก)
+  deductLog.push({ time: new Date().toISOString(), prodId, prodName: prod.name, prodEmoji: prod.emoji, qty, note, price: prod.price });
+  saveSession();
+  closeDeductModal();
+  renderSum();
+  showToast(`✅ หัก ${prod.emoji} ${prod.name} ${qty} ขวด`);
+}
+
+// ── NOTE IN LOG ────────────────────────────────────────────────
+function openEditLog(id){
+  const tx=txLog.find(t=>t.id===id); if(!tx) return;
+  editLogId=id;
+  if(tx.cashAmt>0&&tx.xferAmt>0) editPayType='mix';
+  else if(tx.xferAmt>0) editPayType='xfer';
+  else editPayType='cash';
+  $('editLogTimeEl').textContent=fmtTime(tx.time);
+  setEditPayType(editPayType);
+  setPayVal('elCashAmt',tx.cashAmt||0); setPayVal('elXferAmt',tx.xferAmt||0);
+  // โหลด note ถ้ามี
+  $('editLogNote').value = tx.note || '';
+  renderEditLogItems(tx);
+  showScreen('editLogScreen');
+}
+
+// ── WAGE CALC ──────────────────────────────────────────────────
+function renderWageCard(){
+  const tb = prods.reduce((s,p)=>s+(sold[p.id]||0),0);
+  const wage = tb >= WAGE_GOAL ? WAGE_BONUS : WAGE_BASE;
+  const reached = tb >= WAGE_GOAL;
+  const wageColor = reached ? 'var(--green)' : 'var(--red)';
+  const el = $('sWageArea');
+
+  let html = '';
+  // แถวค่าแรง
+  html += `<div class="wage-row"><span>🍶 ขายได้</span><strong>${tb} ขวด</strong></div>`;
+  html += `<div class="wage-row"><span>💰 ค่าแรง</span><strong style="color:${wageColor}">${wage.toLocaleString()}฿${reached?' 🎉':''}</strong></div>`;
+  html += `<div class="wage-row"><span>💵 เงินสดทั้งหมด</span><strong>${cashT.toLocaleString()}฿</strong></div>`;
+  html += `<div class="wage-row"><span>📲 เงินโอนทั้งหมด</span><strong>${xferT.toLocaleString()}฿</strong></div>`;
+
+  if(xferT >= wage){
+    // โอนพอ — คำนวณอัตโนมัติ
+    const sendXfer = xferT - wage;
+    html += `<div style="margin-top:10px;background:var(--card2);border-radius:12px;padding:12px 14px">`;
+    html += `<div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📤 ส่งเจ้าของร้าน</div>`;
+    html += `<div class="wage-row"><span>📲 โอน</span><strong style="color:var(--accent)">${sendXfer.toLocaleString()}฿</strong></div>`;
+    html += `<div class="wage-row"><span>💵 เงินสด</span><strong style="color:var(--green)">${cashT.toLocaleString()}฿</strong></div>`;
+    html += `</div>`;
+  } else {
+    // โอนไม่พอ — แสดงตัวเลือก
+    html += `<div style="margin-top:8px;font-size:13px;color:var(--yellow);font-weight:700">⚠️ โอนไม่พอค่าแรง ขาด ${(wage-xferT).toLocaleString()}฿</div>`;
+    html += `<div style="font-size:12px;color:var(--muted);margin:6px 0 8px">เลือกวิธีหักค่าแรง</div>`;
+    html += `<div class="wage-opt">
+      <button id="sWageOptA" onclick="setWageOpt('A')" class="${wageOpt==='A'?'on':''}">ตัดโอนก่อน<br><span style="font-size:11px;font-weight:400">ที่เหลือหักเงินสด</span></button>
+      <button id="sWageOptB" onclick="setWageOpt('B')" class="${wageOpt==='B'?'on':''}">ตัดเงินสดอย่างเดียว<br><span style="font-size:11px;font-weight:400">โอนส่งเจ้าของทั้งหมด</span></button>
+    </div>`;
+    html += `<div id="sWageOptResult" style="background:var(--card2);border-radius:12px;padding:12px 14px;margin-top:6px;font-size:13px;line-height:1.9"></div>`;
+  }
+  el.innerHTML = html;
+  // render ผลลัพธ์ถ้าโอนไม่พอ
+  if(xferT < wage) renderWageOptResult();
+}
+
+function setWageOpt(opt){
+  wageOpt = opt;
+  const a = $('sWageOptA'), b = $('sWageOptB');
+  if(a) a.className = opt==='A'?'on':'';
+  if(b) b.className = opt==='B'?'on':'';
+  renderWageOptResult();
+}
+
+function renderWageOptResult(){
+  const tb = prods.reduce((s,p)=>s+(sold[p.id]||0),0);
+  const wage = tb >= WAGE_GOAL ? WAGE_BONUS : WAGE_BASE;
+  const el = $('sWageOptResult');
+  if(!el) return;
+  if(xferT >= wage){ el.innerHTML=''; return; }
+  if(wageOpt === 'A'){
+    const cashDeduct = Math.max(0, wage - xferT);
+    const sendCash = Math.max(0, cashT - cashDeduct);
+    el.innerHTML = `💵 เงินสดส่งเจ้าของ: <strong style="color:var(--green)">${sendCash.toLocaleString()}฿</strong><br>📲 โอนส่งเจ้าของ: <strong style="color:var(--accent)">0฿</strong><br>💰 ค่าแรง: โอน ${xferT.toLocaleString()}฿ + เงินสด ${cashDeduct.toLocaleString()}฿`;
+  } else {
+    const sendCash = Math.max(0, cashT - wage);
+    el.innerHTML = `💵 เงินสดส่งเจ้าของ: <strong style="color:var(--green)">${sendCash.toLocaleString()}฿</strong><br>📲 โอนส่งเจ้าของ: <strong style="color:var(--accent)">${xferT.toLocaleString()}฿</strong><br>💰 ค่าแรง: เงินสด ${wage.toLocaleString()}฿`;
+  }
+}
+
+function confirmNewShift(){
+  $('confirmModal').classList.add('show');
+}
+function newShift(){ confirmNewShift(); }
+
+function doNewShiftFromWage(){
+  saveHistory();
+  deductLog = [];
+  noteLog = [];
+  wageOpt = 'A';
+  clearSession();
+  if(window._clockTick){ clearInterval(window._clockTick); window._clockTick=null; }
+  $('topbar').style.display='none'; $('tabs').style.display='none';
+  renderSetupProds(); renderSetupQR(); showScreen('setupScreen');
+}
+
+let editLogId=null, editPayType='cash';
+// openEditLog defined above
+function setEditPayType(t){
+  editPayType=t;
+  ['cash','xfer','mix'].forEach(k=>{
+    $('elBtn'+k.charAt(0).toUpperCase()+k.slice(1)).classList.toggle('on',k===t);
+  });
+  $('editMixRow').style.display=(t==='mix'?'block':'none');
+}
+function renderEditLogItems(tx){
+  let total=0;
+  $('editLogItemsEl').innerHTML=tx.items.map(it=>{
+    const p=prods.find(x=>x.id===it.id);
+    const sub=it.qty*it.price; total+=sub;
+    return `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:7px">
+      <span style="font-size:20px">${p?p.emoji:'📦'}</span>
+      <span style="flex:1;font-weight:600">${p?p.name:it.id}</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="qty-btn" onclick="chgEditQty('${it.id}',-1)">−</button>
+        <span id="elq_${it.id}" style="font-weight:700;font-size:16px;min-width:22px;text-align:center">${it.qty}</span>
+        <button class="qty-btn" onclick="chgEditQty('${it.id}',1)">+</button>
+      </div>
+      <span style="font-size:13px;color:var(--accent);font-weight:600;min-width:52px;text-align:right">${sub}฿</span>
+    </div>`;
+  }).join('');
+  $('editLogTotalEl').textContent=total.toLocaleString()+'฿';
+}
+function chgEditQty(pid, delta){
+  const tx=txLog.find(t=>t.id===editLogId); if(!tx) return;
+  const it=tx.items.find(x=>x.id===pid); if(!it) return;
+  if(delta>0){
+    // เช็คสต็อกจาก _origStock (ยอดเริ่มกะ) ถ้ามี
+    const origSt = window._origStock && window._origStock[pid]!=null ? window._origStock[pid] : null;
+    if(origSt!=null){
+      const otherSold=txLog.filter(t=>t.id!==editLogId).reduce((s,t)=>{
+        const x=t.items.find(i=>i.id===pid); return s+(x?x.qty:0);
+      },0);
+      if(otherSold + it.qty + delta > origSt){
+        showToast('⚠️ สต็อกไม่พอ'); return;
+      }
+    }
+  }
+  it.qty=Math.max(0,it.qty+delta);
+  if(it.qty===0) tx.items=tx.items.filter(x=>x.id!==pid);
+  tx.total=tx.items.reduce((s,x)=>s+x.qty*x.price,0);
+  renderEditLogItems(tx);
+}
+function chkEditMix(){
+  const tx=txLog.find(t=>t.id===editLogId); if(!tx) return;
+  const c=parseInt($('elCashAmt').value)||0, x=parseInt($('elXferAmt').value)||0;
+  const w=$('editMixWarn'); const diff=tx.total-(c+x);
+  if((c+x)>0 && diff!==0){
+    w.style.display='block';
+    if(diff>0){ w.style.color='var(--yellow)'; w.textContent='⚠️ ขาดอีก '+diff.toLocaleString()+'฿'; }
+    else { w.style.color='var(--red)'; w.textContent='⚠️ เกินมา '+Math.abs(diff).toLocaleString()+'฿'; }
+  } else w.style.display='none';
+}
+function saveEditLog(){
+  const tx=txLog.find(t=>t.id===editLogId); if(!tx) return;
+  if(!tx.items.length){ if(!confirm('รายการว่าง จะลบออกเลยมั้ย?')) return; deleteLogEntry(); return; }
+  // recompute sold totals from scratch
+  prods.forEach(p=>{ sold[p.id]=0; });
+  txLog.forEach(t=>t.items.forEach(it=>{ sold[it.id]=(sold[it.id]||0)+it.qty; }));
+  // recompute stock = initialStock - sold (เฉพาะ prod ที่มี stock ตั้งไว้)
+  // คำนวณ stock ใหม่จาก originalStock ที่บันทึกไว้
+  if(window._origStock){
+    prods.forEach(p=>{ if(_origStock[p.id]!=null) stock[p.id]=Math.max(0,_origStock[p.id]-(sold[p.id]||0)); });
+  }
+  // recompute cashT xferT from scratch
+  cashT=0; xferT=0;
+  // update pay type
+  if(editPayType==='cash'){ tx.cashAmt=tx.total; tx.xferAmt=0; }
+  else if(editPayType==='xfer'){ tx.xferAmt=tx.total; tx.cashAmt=0; }
+  else {
+    const c=parseInt($('elCashAmt').value)||0, x=parseInt($('elXferAmt').value)||0;
+    if(c+x !== tx.total){
+      const diff=tx.total-(c+x);
+      showToast(diff>0?`⚠️ ขาดอีก ${diff.toLocaleString()}฿`:`⚠️ เกินมา ${Math.abs(diff).toLocaleString()}฿`);
+      return;
+    }
+    tx.cashAmt=c; tx.xferAmt=x;
+  }
+  tx.note = ($('editLogNote').value||'').trim();
+  txLog.forEach(t=>{ cashT+=t.cashAmt; xferT+=t.xferAmt; });
+  saveSession();
+  goTab('log');
+  showToast('✅ แก้ไขแล้ว');
+}
+function deleteLogEntry(){
+  if(!confirm('ลบรายการนี้?')) return;
+  txLog=txLog.filter(t=>t.id!==editLogId);
+  // recompute
+  prods.forEach(p=>{ sold[p.id]=0; });
+  txLog.forEach(t=>t.items.forEach(it=>{ sold[it.id]=(sold[it.id]||0)+it.qty; }));
+  if(window._origStock){ prods.forEach(p=>{ if(_origStock[p.id]!=null) stock[p.id]=Math.max(0,_origStock[p.id]-(sold[p.id]||0)); }); }
+  cashT=0; xferT=0;
+  txLog.forEach(t=>{ cashT+=t.cashAmt; xferT+=t.xferAmt; });
+  saveSession();
+  goTab('log');
+  showToast('🗑 ลบแล้ว');
+}
+
+
+
+// ── PROMPTPAY QR ───────────────────────────────────────────────
+function promptpayPayload(phone, amount) {
+  // แปลงเบอร์ไทย 0812345678 → 0066812345678
+  const sanitized = phone.replace(/[^0-9]/g, '');
+  const target = '0066' + sanitized.substring(1); // ตัด 0 นำหน้า แล้วต่อ 0066
+
+  const f = (id, val) => {
+    const v = String(val);
+    return id + v.length.toString().padStart(2,'0') + v;
+  };
+
+  // AID field 26: PromptPay phone
+  const aid = f('00','A000000677010111') + f('01', target);
+  
+  // Build payload (ไม่มี field 59, 60 — ไม่ใช่ standard PromptPay)
+  let p = '';
+  p += f('00', '01');          // Payload Format Indicator
+  p += f('01', '12');          // Point of Initiation: 12 = dynamic (มีราคา), 11 = static
+  p += f('29', aid);           // Merchant Account Info — PromptPay ใช้ tag 29
+  p += f('53', '764');         // Transaction Currency: 764 = THB
+  if (amount != null && amount > 0) {
+    p += f('54', amount.toFixed(2)); // Transaction Amount
+  }
+  p += f('58', 'TH');          // Country Code
+  p += '6304';                 // CRC placeholder
+  p += crc16(p);
+  return p;
+}
+function crc16(str) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+    }
+  }
+  return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+}
+function generatePromptPayQR(amount) {
+  const el = $('payQrBox');
+  el.innerHTML = '';
+  if(!ppPhone){ el.innerHTML='<p style="color:var(--muted);font-size:12px;padding:10px">ยังไม่ได้ใส่เบอร์พร้อมเพย์</p>'; return; }
+  const payload = promptpayPayload(ppPhone, amount);
+  try {
+    new QRCode(el, {
+      text: payload,
+      width: 200, height: 200,
+      colorDark: '#000000', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    // Show lock badge
+    const badge = $('qrLockBadge');
+    if(badge){ badge.style.display='flex'; }
+    const lbl = $('qrLockAmtLabel');
+    if(lbl){ lbl.textContent = amount.toLocaleString()+'฿'; }
+    // ── Push to Firebase display ──
+    if(window._fbSet){
+      const fbPayload = promptpayPayload(ppPhone, amount);
+      window._fbSet({ payload: fbPayload, amount: amount, ts: Date.now() }).catch(()=>{});
+    }
+  } catch(e) { el.innerHTML = '<p style="color:red;font-size:12px">เกิดข้อผิดพลาด</p>'; }
+}
+
+// ── NUMPAD ─────────────────────────────────────────────────────
+let npTarget = null, npVal = '';
+
+function openNumpad(targetId, label, isStock) {
+  npTarget = targetId;
+  const cur = document.getElementById(targetId) ? document.getElementById(targetId).value : '';
+  npVal = (cur && cur !== '0') ? cur : '';
+  document.getElementById('numpad-label').textContent = label;
+  document.getElementById('numpad-display').textContent = npVal ? parseInt(npVal).toLocaleString() : '0';
+  document.getElementById('npNextBtn').style.display = isStock ? 'block' : 'none';
+  document.getElementById('numpad-overlay').classList.add('show');
+}
+function npNext() {
+  npConfirm(true);
+  const ids = prods.map(p => 'si_' + p.id);
+  const idx = ids.indexOf(npTarget);
+  if (idx === -1 || idx + 1 >= ids.length) { npClose(); showToast('\u2705 ครบทุกรายการแล้ว'); return; }
+  const next = prods[idx + 1];
+  openNumpad('si_' + next.id, next.name, true);
+}
+function npKey(k) {
+  if (npVal.length >= 7) return;
+  npVal += k;
+  document.getElementById('numpad-display').textContent = parseInt(npVal).toLocaleString();
+}
+function npDel() {
+  npVal = npVal.slice(0, -1);
+  document.getElementById('numpad-display').textContent = npVal ? parseInt(npVal).toLocaleString() : '0';
+}
+function npClose() {
+  document.getElementById('numpad-overlay').classList.remove('show');
+  npTarget = null;
+}
+function npBgClose(e) {
+  if (e.target === document.getElementById('numpad-overlay')) npClose();
+}
+function npConfirm(skipClose) {
+  if (!npTarget) return;
+  const v = npVal ? parseInt(npVal) : 0;
+  // set hidden input
+  const hidden = document.getElementById(npTarget);
+  if (hidden) hidden.value = v;
+  // set display div (id = targetId + 'Disp')
+  const disp = document.getElementById(npTarget + 'Disp');
+  if (disp) { disp.textContent = v || '0'; disp.style.color = 'var(--text)'; }
+  // stock display uses sid_ prefix
+  if (npTarget.startsWith('si_')) {
+    const sid = document.getElementById('sid_' + npTarget.slice(3));
+    if (sid) { sid.textContent = v; sid.style.color = 'var(--text)'; }
+  }
+  // auto-fill opposite field for mix payments
+  if (npTarget === 'inCash' || npTarget === 'inXfer') {
+    const other = npTarget === 'inCash' ? 'inXfer' : 'inCash';
+    const otherVal = Math.max(0, payTotal - v);
+    const otherHidden = document.getElementById(other);
+    if (otherHidden) otherHidden.value = otherVal;
+    const otherDisp = document.getElementById(other + 'Disp');
+    if (otherDisp) otherDisp.textContent = otherVal || '0';
+    // update xfer and cash amount displays
+    const xferAmt = npTarget === 'inXfer' ? v : otherVal;
+    const cashAmt = npTarget === 'inCash' ? v : otherVal;
+    const payXferMixEl = document.getElementById('payXferMixEl');
+    if (payXferMixEl) payXferMixEl.textContent = xferAmt.toLocaleString() + '฿';
+    const payCashAmtEl = document.getElementById('payCashAmtEl');
+    if (payCashAmtEl) payCashAmtEl.textContent = cashAmt.toLocaleString() + '฿';
+    // Re-generate QR ล็อคเฉพาะยอดโอน
+    if (xferAmt > 0) {
+      generatePromptPayQR(xferAmt);
+    } else {
+      const el = document.getElementById('payQrBox');
+      if (el) el.innerHTML = '<p style="color:var(--muted);font-size:12px;padding:16px">ใส่ยอดโอนก่อน</p>';
+      const badge = document.getElementById('qrLockBadge');
+      if (badge) badge.style.display = 'none';
+    }
+    chkWarn();
+  }
+  if (npTarget === 'elCashAmt' || npTarget === 'elXferAmt') {
+    const tx = txLog.find(t => t.id === editLogId);
+    if (tx) {
+      const other = npTarget === 'elCashAmt' ? 'elXferAmt' : 'elCashAmt';
+      const otherVal = Math.max(0, tx.total - v);
+      const otherHidden = document.getElementById(other);
+      if (otherHidden) otherHidden.value = otherVal;
+      const otherDisp = document.getElementById(other + 'Disp');
+      if (otherDisp) otherDisp.textContent = otherVal || '0';
+    }
+    chkEditMix();
+  }
+  if (!skipClose) npClose();
+}
+
+// ── HISTORY ────────────────────────────────────────────────────
+function saveHistory(){
+  try{
+    const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+    const tb=prods.reduce((s,p)=>s+(sold[p.id]||0),0);
+    const tm=cashT+xferT;
+    const wage = tb >= WAGE_GOAL ? WAGE_BONUS : WAGE_BASE;
+    const si=prods.filter(p=>(sold[p.id]||0)>0).map(p=>({id:p.id,name:p.name,emoji:p.emoji,qty:sold[p.id],price:p.price}));
+    const sk=prods.filter(p=>stock[p.id]!=null).map(p=>({id:p.id,name:p.name,emoji:p.emoji,remaining:stock[p.id]}));
+    hist.unshift({date:startDate||new Date().toISOString(),shiftN,cashT,xferT,totalBottles:tb,totalMoney:tm,items:si,stockEnd:sk,txLog:[...txLog],deductLog:[...deductLog],wage,wageOpt,noteLog:[...noteLog]});
+    if(hist.length>60) hist.splice(60); // keep max 60 shifts
+    localStorage.setItem('shiftHistory',JSON.stringify(hist));
+  }catch(e){}
+}
+function renderHistory(){
+  const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+  const el=$('histListEl'), em=$('histEmptyEl');
+
+  // ── highlight กะปัจจุบัน ──
+  const liveEl = $('histLiveCard');
+  const isActive = !!(startDate); // มีกะอยู่ถ้า startDate ตั้งไว้
+  if(liveEl){
+    if(isActive){
+      const tb=prods.reduce((s,p)=>s+(sold[p.id]||0),0);
+      const tm=cashT+xferT;
+      const reached=tb>=WAGE_GOAL;
+      const wage=reached?WAGE_BONUS:WAGE_BASE;
+      const d=new Date(startDate);
+      const ds=`${d.getDate()} ${TM[d.getMonth()]} ${d.getFullYear()+543}`;
+      liveEl.style.display='block';
+      liveEl.innerHTML=`
+        <style>
+          @keyframes auS1{0%,100%{opacity:.45;transform:translateX(0)}50%{opacity:.7;transform:translateX(18px)}}
+          @keyframes auS2{0%,100%{opacity:.3;transform:translateX(0)}60%{opacity:.5;transform:translateX(-12px)}}
+          @keyframes auPulse{0%,100%{opacity:.6}50%{opacity:1}}
+          .au-wrap{border-radius:16px;overflow:hidden;position:relative;padding:16px 18px 15px;background:#060e1c;border:1.5px solid rgba(0,180,140,.25);margin-bottom:16px}
+          .au-layer{position:absolute;inset:0;pointer-events:none}
+          .au-band{position:absolute;left:-5%;width:110%;border-radius:50%;mix-blend-mode:screen;filter:blur(22px)}
+          .ab1{height:55px;top:-5px;background:linear-gradient(180deg,rgba(0,200,150,.28) 0%,transparent 100%);animation:auS1 7s ease-in-out infinite}
+          .ab2{height:40px;top:5px;background:linear-gradient(180deg,rgba(60,140,255,.2) 0%,transparent 100%);animation:auS2 10s ease-in-out infinite}
+          .au-live{display:inline-flex;align-items:center;gap:5px;background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.3);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700;color:#00c896;letter-spacing:.7px}
+          .au-dot{width:6px;height:6px;border-radius:50%;background:#00c896;animation:auPulse 1.5s ease-in-out infinite}
+          .au-c{position:relative;z-index:1}
+          .au-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+          .au-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:9px;text-align:center}
+          .au-lbl{font-size:11px;color:rgba(180,210,255,.55);margin-bottom:2px}
+          .au-val{font-size:18px;font-weight:800}
+          .au-div{border:none;border-top:1px solid rgba(255,255,255,.07);margin:0 0 11px}
+        </style>
+        <div class="au-wrap">
+          <div class="au-layer"><div class="au-band ab1"></div><div class="au-band ab2"></div></div>
+          <div class="au-c">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div style="font-size:13px;color:rgba(170,205,255,.6)">📅 ${ds} · กะ${shiftN}</div>
+              <div class="au-live"><div class="au-dot"></div>LIVE</div>
+            </div>
+            <div style="font-size:15px;font-weight:700;color:#deeeff;margin-bottom:0">ขาย ${tb} ขวด ${reached?'🎉':''}</div>
+            <div class="au-grid">
+              <div class="au-stat"><div class="au-lbl">รวม</div><div class="au-val" style="color:#4ecb8a">${tm.toLocaleString()}฿</div></div>
+              <div class="au-stat"><div class="au-lbl">💵 เงินสด</div><div class="au-val" style="color:#deeeff">${cashT.toLocaleString()}฿</div></div>
+              <div class="au-stat"><div class="au-lbl">📲 โอน</div><div class="au-val" style="color:#5aacf0">${xferT.toLocaleString()}฿</div></div>
+            </div>
+            <hr class="au-div">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:12px;color:rgba(170,205,255,.55)">💰 ค่าแรงที่ได้</div>
+              <div style="font-size:20px;font-weight:800;color:${reached?'#4ecb8a':'#f0c040'}">${wage.toLocaleString()}฿</div>
+            </div>
+          </div>
+        </div>`;
+    } else {
+      liveEl.style.display='none';
+    }
+  }
+
+  if(!hist.length){ el.innerHTML=''; em.style.display=(isActive?'none':'block'); return; }
+  em.style.display='none';
+  el.innerHTML=hist.map((h,i)=>{
+    const d=new Date(h.date);
+    const ds=`${d.getDate()} ${TM[d.getMonth()]} ${d.getFullYear()+543}`;
+    const wage = h.wage!=null ? h.wage : (h.totalBottles>=WAGE_GOAL?WAGE_BONUS:WAGE_BASE);
+    const reached = h.totalBottles>=WAGE_GOAL;
+    return `<div onclick="openHistDetail(${i})" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px;cursor:pointer">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="flex:1">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:2px">📅 ${ds} · กะ${h.shiftN}</div>
+          <div style="font-size:14px;font-weight:600">ขาย ${h.totalBottles} ขวด ${reached?'🎉':''}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">💵 ${h.cashT.toLocaleString()}฿ &nbsp;📲 ${h.xferT.toLocaleString()}฿</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;color:var(--green)">${h.totalMoney.toLocaleString()}฿</div>
+          <div style="font-size:11px;color:var(--muted)">ดูรายละเอียด ›</div>
+        </div>
+      </div>
+      <!-- ค่าแรงสรุปสั้น -->
+      <div style="background:var(--card2);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border)">
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:2px">💰 ค่าแรงที่ได้</div>
+          <div style="font-size:20px;font-weight:800;color:${reached?'var(--green)':'var(--yellow)'}">${wage.toLocaleString()}฿</div>
+        </div>
+        <div style="text-align:center;padding:0 8px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:2px">💵 เงินสดส่งเจ้าของ</div>
+          <div style="font-size:18px;font-weight:800;color:var(--green)">${(()=>{ const opt=h.wageOpt||'A'; if(opt==='B') return Math.max(0,h.cashT-wage).toLocaleString(); const cashDeduct=Math.max(0,wage-h.xferT); return Math.max(0,h.cashT-cashDeduct).toLocaleString(); })()}฿</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:2px">📲 โอนส่งเจ้าของ</div>
+          <div style="font-size:18px;font-weight:800;color:var(--accent)">${(()=>{ const opt=h.wageOpt||'A'; if(opt==='B') return h.xferT.toLocaleString(); return Math.max(0,h.xferT-wage).toLocaleString(); })()}฿</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+let currentHistIdx = null;
+let histWageOpt = 'A'; // สำหรับประวัติที่เปิดอยู่
+
+function openHistDetail(i){
+  currentHistIdx = i;
+  const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+  const h=hist[i]; if(!h) return;
+  const d=new Date(h.date);
+  const ds=`${d.getDate()} ${TM[d.getMonth()]} ${d.getFullYear()+543}`;
+  const wage = h.wage!=null ? h.wage : (h.totalBottles>=WAGE_GOAL?WAGE_BONUS:WAGE_BASE);
+  const reached = h.totalBottles>=WAGE_GOAL;
+  // โหลด wageOpt จากประวัติ หรือ default A
+  histWageOpt = h.wageOpt || 'A';
+
+  $('histDetailContent').innerHTML=`
+    <!-- ยอดรวม -->
+    <div class="card" style="text-align:center;padding:18px">
+      <div style="font-size:13px;color:var(--muted)">📅 ${ds} · กะ${h.shiftN}</div>
+      <div style="font-size:42px;font-weight:800;color:var(--green);margin-top:4px">${h.totalMoney.toLocaleString()}฿</div>
+      <div style="font-size:14px;color:var(--muted);margin-top:2px">ขาย ${h.totalBottles} ขวด</div>
+    </div>
+    <!-- เงินสด/โอน -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+      <div class="card" style="text-align:center;padding:14px">
+        <div style="font-size:11px;color:var(--muted)">💵 เงินสดรับมา</div>
+        <div style="font-size:26px;font-weight:800;color:var(--green);margin-top:4px">${h.cashT.toLocaleString()}฿</div>
+      </div>
+      <div class="card" style="text-align:center;padding:14px">
+        <div style="font-size:11px;color:var(--muted)">📲 เงินโอนรับมา</div>
+        <div style="font-size:26px;font-weight:800;color:var(--accent);margin-top:4px">${h.xferT.toLocaleString()}฿</div>
+      </div>
+    </div>
+
+    <!-- ── ค่าแรง ── -->
+    <div class="card" style="margin-top:10px;border-color:${reached?'var(--green)':'var(--yellow)'}">
+      <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">💰 ค่าแรงกะนี้</div>
+
+      <!-- ขวดขาย + เป้า -->
+      <div style="background:var(--card2);border-radius:12px;padding:14px;text-align:center;margin-bottom:10px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">ขวดที่ขายได้ทั้งหมด</div>
+        <div style="font-size:40px;font-weight:800;color:${reached?'var(--green)':'var(--accent)'}">${h.totalBottles} ขวด</div>
+        <div style="font-size:14px;color:var(--muted);margin-top:4px">${reached?'🎉 ถึงเป้าแล้ว! ได้โบนัส':'⚡ เป้า '+WAGE_GOAL+' ขวด &nbsp;|&nbsp; ขาดอีก '+(WAGE_GOAL-h.totalBottles)+' ขวด'}</div>
+      </div>
+
+      <!-- ค่าแรงที่ได้ — ตัวใหญ่ -->
+      <div style="background:${reached?'#0d2b0d':'#2b1a00'};border:2px solid ${reached?'var(--green)':'var(--yellow)'};border-radius:14px;padding:18px;text-align:center;margin-bottom:14px">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">💰 ค่าแรงที่ได้</div>
+        <div style="font-size:48px;font-weight:800;color:${reached?'var(--green)':'var(--yellow)'}">${wage.toLocaleString()}฿</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">${reached?'ได้โบนัส 400฿ เพราะขายครบ '+WAGE_GOAL+' ขวด':'ขั้นต่ำ 350฿ (ยังไม่ถึงเป้า)'}</div>
+      </div>
+
+      <!-- คำนวณส่งเจ้าของ — แสดงปุ่มเลือกเสมอ -->
+      ${h.xferT<wage?`
+          <div id="hdWageWarning" style="background:#2b1a00;border:2px solid var(--yellow);border-radius:12px;padding:14px 16px;margin-bottom:14px;${histWageOpt==='B'?'display:none':''}">
+            <div style="font-size:16px;color:var(--yellow);font-weight:800;margin-bottom:4px">⚠️ โอนไม่พอค่าแรง</div>
+            <div style="font-size:14px;color:var(--muted)">โอนมีแค่ <strong style="color:var(--accent)">${h.xferT.toLocaleString()}฿</strong> &nbsp;|&nbsp; ขาด <strong style="color:var(--red)">${(wage-h.xferT).toLocaleString()}฿</strong></div>
+          </div>`:''}
+      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">เลือกวิธีหักค่าแรง</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button id="hdOptB" onclick="setHistWageOpt('B',${i})"
+          style="flex:1;padding:13px 6px;border-radius:12px;border:2px solid;font-weight:700;font-size:14px;cursor:pointer;transition:.15s;line-height:1.5;${histWageOpt==='B'?'border-color:var(--green);background:#1a2d1a;color:var(--green)':'border-color:var(--border);background:var(--card2);color:var(--muted)'}">
+          ตัดเงินสดอย่างเดียว<br><span style="font-size:11px;font-weight:400;opacity:.8">โอนส่งเจ้าของทั้งหมด</span>
+        </button>
+        <button id="hdOptA" onclick="setHistWageOpt('A',${i})"
+          style="flex:1;padding:13px 6px;border-radius:12px;border:2px solid;font-weight:700;font-size:14px;cursor:pointer;transition:.15s;line-height:1.5;${histWageOpt==='A'?'border-color:var(--accent);background:#1a2535;color:var(--accent)':'border-color:var(--border);background:var(--card2);color:var(--muted)'}">
+          ตัดโอนก่อน<br><span style="font-size:11px;font-weight:400;opacity:.8">ที่เหลือหักเงินสด</span>
+        </button>
+      </div>
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:10px;text-align:center">📤 ส่งเงินให้เจ้าของร้าน</div>
+      <div id="hdWageResult" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+    </div>
+
+    <div class="lbl">📦 สินค้าที่ขาย</div>
+    <div class="card">${h.items.length?h.items.map(it=>`
+      <div class="sum-row"><span>${it.emoji} ${it.name}</span>
+      <span style="font-weight:700">${it.qty} <span style="font-size:12px;color:var(--muted)">(${(it.qty*it.price).toLocaleString()}฿)</span></span></div>`).join(''):'<div style="color:var(--muted);font-size:14px">ไม่มีการขาย</div>'}</div>
+    ${h.stockEnd&&h.stockEnd.length?`<div class="lbl">📋 ของเหลือปลายกะ</div>
+    <div class="card">${h.stockEnd.map(s=>`<div class="sum-row"><span>${s.emoji} ${s.name}</span><span style="font-weight:700">${s.remaining} ขวด</span></div>`).join('')}</div>`:''}
+    ${h.deductLog&&h.deductLog.length?`<div class="lbl">📦 หักสต็อกพิเศษ</div>
+    <div class="card" style="border-color:var(--yellow)">${h.deductLog.map(d=>`<div style="font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);color:var(--yellow)">${d.prodEmoji} ${d.prodName} ${d.qty} ขวด — ${d.note}</div>`).join('')}</div>`:''}
+    ${h.noteLog&&h.noteLog.length?`<div class="lbl">📝 Note</div>
+    <div class="card" style="border-color:var(--border)">${h.noteLog.map(n=>`<div style="font-size:14px;color:var(--text);padding:4px 0;line-height:1.6">-${n.text}</div>`).join('')}</div>`:
+    h.shiftNote?`<div class="lbl">📝 Note</div>
+    <div class="card" style="border-color:var(--border)"><div style="font-size:14px;color:var(--text);line-height:1.7;white-space:pre-wrap">${h.shiftNote}</div></div>`:''}
+  `;
+  showScreen('histDetailScreen');
+  // render ผลลัพธ์ค่าแรงเสมอ
+  renderHistWageResult(h, wage);
+}
+
+function setHistWageOpt(opt, histIdx){
+  histWageOpt = opt;
+  // update button styles
+  const a = document.getElementById('hdOptA');
+  const b = document.getElementById('hdOptB');
+  if(a){ a.style.borderColor=opt==='A'?'var(--accent)':'var(--border)'; a.style.background=opt==='A'?'#1a2535':'var(--card2)'; a.style.color=opt==='A'?'var(--accent)':'var(--muted)'; }
+  if(b){ b.style.borderColor=opt==='B'?'var(--green)':'var(--border)'; b.style.background=opt==='B'?'#1a2d1a':'var(--card2)'; b.style.color=opt==='B'?'var(--green)':'var(--muted)'; }
+  const warn=document.getElementById('hdWageWarning'); if(warn) warn.style.display=opt==='B'?'none':'block';
+  // save to history
+  try{
+    const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+    if(hist[histIdx]) hist[histIdx].wageOpt=opt;
+    localStorage.setItem('shiftHistory',JSON.stringify(hist));
+  }catch(e){}
+  const hist2=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+  const h=hist2[histIdx]; if(!h) return;
+  const wage=h.wage!=null?h.wage:(h.totalBottles>=WAGE_GOAL?WAGE_BONUS:WAGE_BASE);
+  renderHistWageResult(h, wage);
+}
+
+function renderHistWageResult(h, wage){
+  const el=document.getElementById('hdWageResult'); if(!el) return;
+  let xferSend, cashSend;
+  if(histWageOpt==='A'){
+    const cashDeduct=Math.max(0,wage-h.xferT);
+    cashSend=Math.max(0,h.cashT-cashDeduct);
+    xferSend=Math.max(0,h.xferT-wage);
+  } else {
+    cashSend=Math.max(0,h.cashT-wage);
+    xferSend=h.xferT;
+  }
+  el.innerHTML=`
+    <div style="background:#1a2d1a;border:2px solid var(--green);border-radius:14px;padding:16px;text-align:center">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">💵 เงินสด</div>
+      <div style="font-size:32px;font-weight:800;color:var(--green)">${cashSend.toLocaleString()}฿</div>
+    </div>
+    <div style="background:#1a2535;border:2px solid var(--accent);border-radius:14px;padding:16px;text-align:center">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">📲 โอน</div>
+      <div style="font-size:32px;font-weight:800;color:var(--accent)">${xferSend.toLocaleString()}฿</div>
+    </div>`;
+}
+function deleteHistEntry(){
+  if(!confirm('ลบประวัติกะนี้?')) return;
+  const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+  hist.splice(currentHistIdx, 1);
+  localStorage.setItem('shiftHistory', JSON.stringify(hist));
+  showToast('🗑 ลบแล้ว');
+  goTab('history');
+}
+async function doNewShift(){
+  $('confirmModal').classList.remove('show');
+
+  // ส่งข้อมูลไป Google Sheets ถ้าตั้งค่าไว้
+  if(sheetsURL){
+    showToast('📊 กำลังส่งข้อมูลไป Sheets…');
+    const payload = buildShiftPayload();
+    const result = await sendToSheets(payload);
+    if(result.ok){
+      showToast('✅ ส่ง Sheets สำเร็จ!');
+    } else if(!result.skipped){
+      showToast('⚠️ ส่ง Sheets ไม่ได้ — บันทึกในเครื่องแล้ว');
+    }
+  }
+
+  saveHistory();
+  deductLog = [];
+  noteLog = [];
+  wageOpt = 'A';
+  clearSession();
+  if(window._clockTick){ clearInterval(window._clockTick); window._clockTick=null; }
+  $('topbar').style.display='none'; $('tabs').style.display='none';
+  renderSetupProds(); renderSetupQR(); showScreen('setupScreen');
+}
+
+// ── SHIFT NOTE ─────────────────────────────────────────────────
+let noteLog = []; // [{text}]
+function renderNoteList(){
+  const el=$('sNoteList'); if(!el) return;
+  if(!noteLog.length){ el.innerHTML=''; return; }
+  el.innerHTML=noteLog.map((n,i)=>`<div style="font-size:13px;padding:7px 0;border-bottom:1px solid var(--border);color:var(--text);display:flex;align-items:center;gap:8px">
+    <span style="flex:1;line-height:1.5">-${n.text}</span>
+    <button onclick="editNote(${i})" style="background:var(--card2);border:1.5px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px;flex-shrink:0">✏️</button>
+    <button onclick="deleteNote(${i})" style="background:var(--card2);border:1.5px solid var(--red);color:var(--red);font-size:14px;font-weight:800;cursor:pointer;padding:4px 9px;border-radius:8px;flex-shrink:0">✕</button>
+  </div>`).join('');
+}
+function addNote(){
+  const inp=$('sNoteInput'); if(!inp) return;
+  const txt=inp.value.trim();
+  if(!txt){ showToast('พิมอะไรก่อนนะ'); return; }
+  noteLog.push({text:txt});
+  inp.value='';
+  saveSession();
+  renderNoteList();
+}
+function editNote(i){
+  const newText=prompt('แก้ไข note:',noteLog[i].text);
+  if(newText===null) return;
+  if(!newText.trim()){ showToast('ใส่ข้อความด้วยนะ'); return; }
+  noteLog[i].text=newText.trim();
+  saveSession();
+  renderNoteList();
+}
+function deleteNote(i){
+  noteLog.splice(i,1);
+  saveSession();
+  renderNoteList();
+  showToast('🗑 ลบ note แล้ว');
+}
+
+// ── GOOGLE SHEETS SYNC ────────────────────────────────────────
+let sheetsURL = localStorage.getItem('sheetsURL') || '';
+
+function openSheetsModal(){
+  const inp = $('sheetsUrlInput');
+  if(inp) inp.value = sheetsURL;
+  const res = $('sheetsTestResult');
+  if(res) res.style.display = 'none';
+  $('sheetsModal').style.display = 'flex';
+}
+
+function saveSheetsURL(){
+  const val = ($('sheetsUrlInput').value||'').trim();
+  if(val && !val.startsWith('https://script.google.com')){
+    showToast('⚠️ URL ต้องขึ้นต้นด้วย script.google.com'); return;
+  }
+  sheetsURL = val;
+  if(val) localStorage.setItem('sheetsURL', val);
+  else localStorage.removeItem('sheetsURL');
+  $('sheetsModal').style.display = 'none';
+  showToast(val ? '✅ บันทึก URL แล้ว' : '🗑 ลบ URL แล้ว');
+  updateSheetsBtnLabel();
+}
+
+function clearSheetsURL(){
+  sheetsURL = '';
+  localStorage.removeItem('sheetsURL');
+  const inp = $('sheetsUrlInput'); if(inp) inp.value = '';
+  const res = $('sheetsTestResult'); if(res) res.style.display = 'none';
+  showToast('🗑 ยกเลิกการเชื่อม Sheets แล้ว');
+  updateSheetsBtnLabel();
+}
+
+function updateSheetsBtnLabel(){
+  const btn = $('sheetsBtnSummary');
+  if(!btn) return;
+  if(sheetsURL){
+    btn.textContent = '📊 Google Sheets ✅';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = 'var(--green)';
+  } else {
+    btn.textContent = '📊 Google Sheets';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = 'var(--accent)';
+  }
+}
+
+async function testSheetsURL(){
+  const val = ($('sheetsUrlInput').value||'').trim();
+  const res = $('sheetsTestResult');
+  if(!val){ res.textContent='⚠️ ใส่ URL ก่อน'; res.style.background='#2b1a00'; res.style.color='var(--yellow)'; res.style.display='block'; return; }
+  res.textContent='⏳ กำลังทดสอบ…'; res.style.background='var(--card2)'; res.style.color='var(--muted)'; res.style.display='block';
+  try{
+    const r = await fetch(val, { method:'GET' });
+    const j = await r.json();
+    if(j.ok){
+      res.textContent='✅ เชื่อมต่อได้! พร้อมใช้งาน';
+      res.style.background='#1a3a1a'; res.style.color='var(--green)';
+    } else {
+      res.textContent='❌ ตอบกลับผิดปกติ: '+JSON.stringify(j);
+      res.style.background='#2b1515'; res.style.color='var(--red)';
+    }
+  }catch(err){
+    res.textContent='❌ เชื่อมไม่ได้: '+err.message;
+    res.style.background='#2b1515'; res.style.color='var(--red)';
+  }
+}
+
+async function sendToSheets(shiftData){
+  if(!sheetsURL) return { ok: false, skipped: true };
+  try{
+    const r = await fetch(sheetsURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' }, // Apps Script ต้องการ text/plain หรือใช้ no-cors
+      body: JSON.stringify(shiftData)
+    });
+    const j = await r.json();
+    return j;
+  }catch(err){
+    return { ok: false, error: err.message };
+  }
+}
+
+function buildShiftPayload(){
+  const tb = prods.reduce((s,p)=>s+(sold[p.id]||0),0);
+  const tm = cashT + xferT;
+  const wage = tb >= WAGE_GOAL ? WAGE_BONUS : WAGE_BASE;
+  const si = prods.filter(p=>(sold[p.id]||0)>0).map(p=>({id:p.id,name:p.name,emoji:p.emoji,qty:sold[p.id],price:p.price}));
+  const sk = prods.filter(p=>stock[p.id]!=null).map(p=>({id:p.id,name:p.name,emoji:p.emoji,remaining:stock[p.id]}));
+  return { date:startDate||new Date().toISOString(), shiftN, cashT, xferT, totalBottles:tb, totalMoney:tm, wage, items:si, stockEnd:sk, deductLog:[...deductLog], noteLog:[...noteLog] };
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+renderSetupProds();
+renderSetupQR();
+
+// ── SESSION SAVE/RESTORE ──────────────────────────────────────
+function saveSession(){
+  try{
+    localStorage.setItem('session',JSON.stringify({
+      active:true, sold, cart, cashT, xferT, shiftN, stock, txLog, startDate, origStock:window._origStock||{}, deductLog, noteLog,
+      dateLabel:'📅 '+today()+' · กะ'+shiftN
+    }));
+  }catch(e){}
+}
+function clearSession(){ localStorage.removeItem('session'); }
+function restoreSession(){
+  try{
+    const s=JSON.parse(localStorage.getItem('session'));
+    if(!s||!s.active) return false;
+    sold=s.sold||{}; cart=s.cart||{}; cashT=s.cashT||0;
+    xferT=s.xferT||0; shiftN=s.shiftN||'เช้า'; stock=s.stock||{}; txLog=s.txLog||[]; startDate=s.startDate||null;
+    if(s.origStock) window._origStock=s.origStock;
+    deductLog=s.deductLog||[];
+    noteLog=s.noteLog||[];
+    $('dateLabel').textContent=s.dateLabel||'';
+    startClock();
+    $('topbar').style.display='flex';
+    $('tabs').style.display='flex';
+    renderSell(); showScreen('sellScreen');
+    document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+    showToast('♻️ โหลดข้อมูลกะเดิมแล้ว');
+    return true;
+  }catch(e){ return false; }
+}
+
+if(!restoreSession()){ showScreen('setupScreen'); }
+</script>
+
+<!-- DEDUCT STOCK MODAL -->
+<div id="deductModal" style="display:none;position:fixed;inset:0;background:#000a;z-index:9999;align-items:flex-end;justify-content:center">
+  <div style="background:var(--card);border-top:2px solid var(--border);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:480px">
+    <h3 style="font-size:18px;font-weight:800;margin-bottom:4px">📦 หักสต็อก</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">ของออกจากร้านโดยไม่ผ่านการขาย</p>
+    <div class="lbl" style="margin-top:0">สินค้า</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <select id="deductProdSel" style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:14px;outline:none"></select>
+      <div id="deductQtyDisp" onclick="openNumpad('deductQty','จำนวน (ขวด)')" style="width:72px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:18px;font-weight:700;text-align:center;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center">1</div>
+      <input type="hidden" id="deductQty" value="1">
+    </div>
+    <div class="lbl">เหตุผล / หมายเหตุ</div>
+    <input id="deductNote" placeholder="เช่น เจ้าของเบิก, Grab รับของ, ของเสีย…" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;outline:none;margin-bottom:14px">
+    <button onclick="confirmDeduct()" class="btn btn-yellow" style="margin-top:0">✅ บันทึกการหัก</button>
+    <button onclick="closeDeductModal()" class="btn btn-outline" style="margin-top:8px">✕ ยกเลิก</button>
+  </div>
+</div>
+
+
+<div id="confirmModal">
+  <div id="confirmBox">
+    <h3>⚠️ ปิดกะและเริ่มใหม่?</h3>
+    <p>ข้อมูลกะนี้จะถูกบันทึกในประวัติ<br>แล้วเริ่มกะใหม่ทันที</p>
+    <!-- Google Sheets status -->
+    <div id="sheetsStatusBox" style="margin:10px 0 4px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;text-align:left;display:none"></div>
+    <button onclick="doNewShift()" class="btn btn-red" style="background:var(--red);color:#fff;margin-top:0">✔ ยืนยัน ปิดกะ</button>
+    <button onclick="$('confirmModal').classList.remove('show')" class="btn btn-outline" style="margin-top:8px">✕ ยกเลิก</button>
+  </div>
+</div>
+
+<!-- GOOGLE SHEETS SETTINGS MODAL -->
+<div id="sheetsModal" style="display:none;position:fixed;inset:0;background:#000a;z-index:9999;align-items:flex-end;justify-content:center">
+  <div style="background:var(--card);border-top:2px solid var(--border);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:500px">
+    <h3 style="font-size:18px;font-weight:800;margin-bottom:4px">📊 เชื่อม Google Sheets</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">ข้อมูลกะจะถูกส่งไป Sheets อัตโนมัติตอนปิดกะ</p>
+
+    <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Apps Script URL</div>
+    <input id="sheetsUrlInput" type="url" placeholder="https://script.google.com/macros/s/…/exec"
+      style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px;word-break:break-all">
+
+    <div id="sheetsTestResult" style="display:none;font-size:13px;font-weight:700;padding:10px 14px;border-radius:10px;margin-bottom:10px"></div>
+
+    <div style="display:flex;gap:8px">
+      <button onclick="testSheetsURL()" style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px;font-weight:700;font-size:14px;color:var(--text);cursor:pointer">🔍 ทดสอบ</button>
+      <button onclick="saveSheetsURL()" style="flex:1;background:var(--accent);border:none;border-radius:12px;padding:12px;font-weight:800;font-size:14px;color:#000;cursor:pointer">💾 บันทึก</button>
+    </div>
+    <button onclick="clearSheetsURL()" style="width:100%;margin-top:8px;background:none;border:1px solid var(--red);border-radius:12px;padding:10px;font-weight:700;font-size:13px;color:var(--red);cursor:pointer">🗑 ลบ URL (ปิดการเชื่อม)</button>
+    <button onclick="$('sheetsModal').style.display='none'" class="btn btn-outline" style="margin-top:8px">✕ ปิด</button>
+
+    <div style="margin-top:16px;padding:14px;background:var(--card2);border-radius:12px;font-size:12px;color:var(--muted);line-height:1.8">
+      <div style="font-weight:800;color:var(--text);margin-bottom:6px">📋 วิธีตั้งค่า (ทำครั้งแรกครั้งเดียว)</div>
+      <div>1. เปิด <strong style="color:var(--accent)">script.google.com</strong> → New Project</div>
+      <div>2. วางโค้ดจากไฟล์ <strong style="color:var(--accent)">SevenEight_AppScript.gs</strong></div>
+      <div>3. กด Deploy → New deployment → Web app</div>
+      <div>4. Execute as: <strong>Me</strong> / Access: <strong>Anyone</strong></div>
+      <div>5. Copy URL มาวางด้านบน แล้วกด บันทึก</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
