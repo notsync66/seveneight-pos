@@ -73,6 +73,16 @@ button,input{font-family:'Sarabun',sans-serif}
 
 
 
+/* mobile: ซ่อน sell-right (ตะกร้า tablet) */
+#sell-right{ display:none; }
+#sell-cart-mobile{ display:block; }
+
+@media(min-width:768px){
+  /* tablet: ซ่อนตะกร้า mobile, โชว์ sell-right */
+  #sell-cart-mobile{ display:none !important; }
+  #sell-right{ display:flex !important; flex-direction:column; }
+}
+
 /* ── TABLET SIDEBAR (≥768px) ────────────────────────────────── */
 @media(min-width:768px){
   body{ padding-bottom:0; }
@@ -299,29 +309,51 @@ button,input{font-family:'Sarabun',sans-serif}
 
 <!-- SELL -->
 <div id="sellScreen" class="screen">
-  <!-- ซ้าย: สินค้า (tablet จะกลายเป็น flex column) -->
   <div id="sell-left">
+
     <div id="prodArea"></div>
-    <!-- ปุ่มตั้งค่า — อยู่ล่างสุดของฝั่งซ้าย บน mobile ก็ยังอยู่ล่าง -->
-    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
+
+    <!-- ตะกร้า: โชว์บน mobile เท่านั้น -->
+    <div id="sell-cart-mobile" style="margin-top:16px">
+      <div class="card" style="display:flex;flex-direction:column;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-weight:700;font-size:15px">🧾 ตะกร้า <span id="cartCountLabel" style="display:none;background:var(--accent);color:#000;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:4px"></span></span>
+          <button onclick="clearCart()" id="clrBtn" style="background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;visibility:hidden">ล้าง</button>
+        </div>
+        <div id="cartEl"><div style="text-align:center;color:var(--muted);font-size:14px;padding:10px 0">ยังไม่มีสินค้า — กดเพื่อเพิ่ม</div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+          <span style="font-size:14px;color:var(--muted)">รวม</span>
+          <strong id="cartTotalEl" style="font-size:26px;color:var(--green)">0฿</strong>
+        </div>
+      </div>
+      <div id="payBtnsEl" style="display:none;flex-direction:column;gap:8px;margin-top:10px">
+        <button onclick="openPay('cash')" style="width:100%;background:var(--green);color:#000;border:none;border-radius:14px;padding:16px 0;font-size:17px;font-weight:800;cursor:pointer">💵 เงินสด</button>
+        <button onclick="openPay('xfer')" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:14px;padding:16px 0;font-size:17px;font-weight:800;cursor:pointer">📲 โอน</button>
+        <button onclick="openPay('mix')" style="width:100%;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:14px 0;font-size:15px;font-weight:700;cursor:pointer">🔀 ผสม</button>
+      </div>
+    </div>
+
+    <!-- ปุ่มตั้งค่า -->
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
       <button onclick="goSetStock()" class="btn btn-outline" style="font-size:14px">📦 ตั้งค่าสต็อก</button>
       <button onclick="goEditProds()" class="btn btn-outline" style="margin-top:8px;font-size:14px">⚙️ แก้ไขสินค้า/ราคา</button>
     </div>
   </div>
-  <!-- ขวา: ตะกร้า + ปุ่มชำระ -->
+
+  <!-- ขวา: ตะกร้า tablet -->
   <div id="sell-right">
     <div class="card" style="margin-top:0;flex:1;display:flex;flex-direction:column;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <span style="font-weight:700;font-size:15px">🧾 ตะกร้า <span id="cartCountLabel" style="display:none;background:var(--accent);color:#000;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:4px"></span></span>
-        <button onclick="clearCart()" id="clrBtn" style="background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;visibility:hidden">ล้าง</button>
+        <span style="font-weight:700;font-size:15px">🧾 ตะกร้า <span id="cartCountLabel2" style="display:none;background:var(--accent);color:#000;font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;margin-left:4px"></span></span>
+        <button onclick="clearCart()" id="clrBtn2" style="background:none;border:none;color:var(--red);font-size:13px;cursor:pointer;visibility:hidden">ล้าง</button>
       </div>
-      <div id="cartEl" style="flex:1"><div style="text-align:center;color:var(--muted);font-size:14px;padding:10px 0">ยังไม่มีสินค้า — กดเพื่อเพิ่ม</div></div>
+      <div id="cartEl2"><div style="text-align:center;color:var(--muted);font-size:14px;padding:10px 0">ยังไม่มีสินค้า — กดเพื่อเพิ่ม</div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
         <span style="font-size:14px;color:var(--muted)">รวม</span>
-        <strong id="cartTotalEl" style="font-size:26px;color:var(--green)">0฿</strong>
+        <strong id="cartTotalEl2" style="font-size:26px;color:var(--green)">0฿</strong>
       </div>
     </div>
-    <div id="payBtnsEl" style="display:none;flex-direction:column;gap:8px;margin-top:10px">
+    <div id="payBtnsEl2" style="display:none;flex-direction:column;gap:8px;margin-top:10px">
       <button onclick="openPay('cash')" style="width:100%;background:var(--green);color:#000;border:none;border-radius:14px;padding:16px 0;font-size:17px;font-weight:800;cursor:pointer">💵 เงินสด</button>
       <button onclick="openPay('xfer')" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:14px;padding:16px 0;font-size:17px;font-weight:800;cursor:pointer">📲 โอน</button>
       <button onclick="openPay('mix')" style="width:100%;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:14px 0;font-size:15px;font-weight:700;cursor:pointer">🔀 ผสม</button>
@@ -518,6 +550,7 @@ button,input{font-family:'Sarabun',sans-serif}
 <div id="histScreen" class="screen">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0 4px">
     <div style="font-size:18px;font-weight:800">📅 ประวัติกะ</div>
+    <button onclick="openExportImportModal()" style="background:var(--card2);border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer">💾 Export / Import</button>
   </div>
   <div id="histLiveCard"></div>
   <div id="histListEl"></div>
@@ -574,7 +607,6 @@ button,input{font-family:'Sarabun',sans-serif}
     <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
       <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">⚙️ จัดการ</div>
       <button onclick="openDeductModal()" class="btn btn-outline" style="font-size:14px;border-color:var(--yellow);color:var(--yellow)">📦 หักสต็อก (เบิกใช้/Grab/ของเสีย)</button>
-      <button onclick="openExportImportModal()" class="btn btn-outline" style="margin-top:8px;font-size:14px;border-color:var(--muted);color:var(--muted)">💾 Export / Import ข้อมูล</button>
     </div>
 
     <!-- ── หักสต็อก log (ถ้ามี) ── -->
@@ -844,33 +876,46 @@ function updateCartBadge(){
   const total=Object.values(cart).reduce((s,q)=>s+q,0);
   const badge=$('cartTabBadge');
   if(badge){ if(total>0){ badge.textContent=total>99?'99+':total; badge.classList.add('show'); } else { badge.classList.remove('show'); } }
-  const lbl=$('cartCountLabel');
-  if(lbl){ if(total>0){ lbl.textContent=total+' ชิ้น'; lbl.style.display='inline'; } else { lbl.style.display='none'; } }
+  // sync ทั้ง mobile และ tablet label
+  ['cartCountLabel','cartCountLabel2'].forEach(id=>{
+    const lbl=$(id);
+    if(lbl){ if(total>0){ lbl.textContent=total+' ชิ้น'; lbl.style.display='inline'; } else { lbl.style.display='none'; } }
+  });
 }
 function renderCart(){
-  const ids=Object.keys(cart); const el=$('cartEl');
-  const tot=$('cartTotalEl'); const pb=$('payBtnsEl'); const cb=$('clrBtn');
-  if(!ids.length){
-    el.innerHTML='<div style="text-align:center;color:var(--muted);font-size:14px;padding:10px 0">ยังไม่มีสินค้า — กดเพื่อเพิ่ม</div>';
-    tot.textContent='0฿'; pb.style.display='none'; cb.style.visibility='hidden'; updateCartBadge(); return;
-  }
-  let total=0;
-  el.innerHTML=ids.map(id=>{
-    const p=prods.find(x=>x.id===id); if(!p) return '';
-    const sub=cart[id]*p.price; total+=sub;
-    return `<div class="cart-row">
-      <span style="font-size:18px">${p.emoji}</span>
-      <span style="flex:1;font-weight:600;font-size:14px">${p.name}</span>
-      <div style="display:flex;align-items:center;gap:6px">
-        <button class="qty-btn" onclick="chgQty('${id}',-1)">−</button>
-        <span style="font-weight:700;font-size:16px;min-width:22px;text-align:center">${cart[id]}</span>
-        <button class="qty-btn" onclick="chgQty('${id}',1)">+</button>
-      </div>
-      <span style="font-size:13px;color:var(--accent);font-weight:600;min-width:52px;text-align:right">${sub}฿</span>
-    </div>`;
-  }).join('');
-  tot.textContent=total.toLocaleString()+'฿';
-  pb.style.display='flex'; cb.style.visibility='visible';
+  const ids=Object.keys(cart);
+  const cartHTML = ids.length
+    ? ids.map(id=>{
+        const p=prods.find(x=>x.id===id); if(!p) return '';
+        const sub=cart[id]*p.price;
+        return `<div class="cart-row">
+          <span style="font-size:18px">${p.emoji}</span>
+          <span style="flex:1;font-weight:600;font-size:14px">${p.name}</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="qty-btn" onclick="chgQty('${id}',-1)">−</button>
+            <span style="font-weight:700;font-size:16px;min-width:22px;text-align:center">${cart[id]}</span>
+            <button class="qty-btn" onclick="chgQty('${id}',1)">+</button>
+          </div>
+          <span style="font-size:13px;color:var(--accent);font-weight:600;min-width:52px;text-align:right">${sub}฿</span>
+        </div>`;
+      }).join('')
+    : '<div style="text-align:center;color:var(--muted);font-size:14px;padding:10px 0">ยังไม่มีสินค้า — กดเพื่อเพิ่ม</div>';
+
+  let total=ids.reduce((s,id)=>s+cart[id]*(prods.find(p=>p.id===id)?.price||0),0);
+  const hasItems=ids.length>0;
+
+  // mobile cart
+  const el=$('cartEl'); if(el) el.innerHTML=cartHTML;
+  const tot=$('cartTotalEl'); if(tot) tot.textContent=hasItems?total.toLocaleString()+'฿':'0฿';
+  const pb=$('payBtnsEl'); if(pb) pb.style.display=hasItems?'flex':'none';
+  const cb=$('clrBtn'); if(cb) cb.style.visibility=hasItems?'visible':'hidden';
+
+  // tablet cart
+  const el2=$('cartEl2'); if(el2) el2.innerHTML=cartHTML;
+  const tot2=$('cartTotalEl2'); if(tot2) tot2.textContent=hasItems?total.toLocaleString()+'฿':'0฿';
+  const pb2=$('payBtnsEl2'); if(pb2) pb2.style.display=hasItems?'flex':'none';
+  const cb2=$('clrBtn2'); if(cb2) cb2.style.visibility=hasItems?'visible':'hidden';
+
   updateCartBadge();
 }
 
