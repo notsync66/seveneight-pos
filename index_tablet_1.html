@@ -197,7 +197,6 @@ button,input{font-family:'Sarabun',sans-serif}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, set, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
   const firebaseConfig = {
     apiKey: "AIzaSyCtlocEaaaAD8TIMFjFEQ3OtrhqI0-S1pps",
     authDomain: "seveneight-pos.firebaseapp.com",
@@ -207,11 +206,8 @@ button,input{font-family:'Sarabun',sans-serif}
     messagingSenderId: "826689738915",
     appId: "1:826689738915:web:bc171bde394b3468570716"
   };
-
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-
-  // expose ให้ JS ทั่วไปใช้ได้
   window._fbSet = (data) => set(ref(db, 'display'), data);
   window._fbClear = () => remove(ref(db, 'display'));
 </script>
@@ -303,8 +299,10 @@ button,input{font-family:'Sarabun',sans-serif}
   <div id="sell-left">
     <div id="prodArea"></div>
     <!-- ปุ่มตั้งค่า — อยู่ล่างสุดของฝั่งซ้าย บน mobile ก็ยังอยู่ล่าง -->
-    <button onclick="goSetStock()" class="btn btn-outline" style="margin-top:14px;font-size:14px">📦 ตั้งค่าสต็อก</button>
-    <button onclick="goEditProds()" class="btn btn-outline" style="margin-top:8px;font-size:14px">⚙️ แก้ไขสินค้า/ราคา</button>
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
+      <button onclick="goSetStock()" class="btn btn-outline" style="font-size:14px">📦 ตั้งค่าสต็อก</button>
+      <button onclick="goEditProds()" class="btn btn-outline" style="margin-top:8px;font-size:14px">⚙️ แก้ไขสินค้า/ราคา</button>
+    </div>
   </div>
   <!-- ขวา: ตะกร้า + ปุ่มชำระ -->
   <div id="sell-right">
@@ -562,18 +560,20 @@ button,input{font-family:'Sarabun',sans-serif}
     </div>
     <!-- ปุ่ม copy + เริ่มกะใหม่ อยู่ที่เดิม (ล่างสุดซ้าย) -->
     <button onclick="copySummary()" class="btn btn-yellow" style="margin-top:14px;padding:16px;font-size:17px">📋 Copy ส่งเจ้าของร้าน</button>
-    <button onclick="confirmNewShift()" class="btn btn-outline">🔄 เริ่มกะใหม่</button>
+    <button onclick="copyStock()" class="btn btn-outline" style="margin-top:8px;font-size:14px;border-color:var(--green);color:var(--green)">📦 Copy ของเหลือในถัง</button>
+    <button onclick="confirmNewShift()" class="btn btn-outline" style="margin-top:24px">🔄 เริ่มกะใหม่</button>
   </div>
 
   <!-- ขวา: หักสต็อก, note -->
   <div id="sum-right">
+    <div style="height:8px"></div>
     <div id="sDeductSection" class="card" style="margin-top:8px;display:none;border-color:var(--yellow)">
       <div style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📦 หักสต็อก / หมายเหตุพิเศษ</div>
       <div id="sDeductList"></div>
     </div>
     <button onclick="openDeductModal()" class="btn btn-outline" style="margin-top:8px;font-size:14px;border-color:var(--yellow);color:var(--yellow)">📦 หักสต็อก (เบิกใช้/Grab/ของเสีย)</button>
-    <button onclick="openSheetsModal()" class="btn btn-outline" style="margin-top:10px;font-size:14px;border-color:var(--accent);color:var(--accent)" id="sheetsBtnSummary">📊 Google Sheets</button>
-    <div class="card" style="margin-top:20px;border-color:var(--border)">
+    <button onclick="openExportImportModal()" class="btn btn-outline" style="margin-top:10px;font-size:14px;border-color:var(--muted);color:var(--muted)">💾 Export / Import ข้อมูล</button>
+    <div class="card" style="margin-top:24px;border-color:var(--border)">
       <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📝 Note เพิ่มเติม</div>
       <div id="sNoteList"></div>
       <div style="display:flex;gap:8px;margin-top:8px">
@@ -984,7 +984,6 @@ function confirmPay(){
   cashT+=c; xferT+=x; cart={}; payTotal=0;
   saveSession();
   releaseWakeLock();
-  // ── Clear Firebase display ──
   if(window._fbClear) window._fbClear().catch(()=>{});
   showScreen('sellScreen'); renderSell(); showFlash();
 }
@@ -1070,7 +1069,6 @@ function goTab(tab){
   if(tab==='history'){ renderHistory(); showScreen('histScreen'); }
 }
 function renderSum(){
-  updateSheetsBtnLabel();
   const tb=prods.reduce((s,p)=>s+(sold[p.id]||0),0);
   const tm=cashT+xferT;
   const si=prods.filter(p=>(sold[p.id]||0)>0);
@@ -1856,19 +1854,6 @@ function deleteHistEntry(){
 }
 async function doNewShift(){
   $('confirmModal').classList.remove('show');
-
-  // ส่งข้อมูลไป Google Sheets ถ้าตั้งค่าไว้
-  if(sheetsURL){
-    showToast('📊 กำลังส่งข้อมูลไป Sheets…');
-    const payload = buildShiftPayload();
-    const result = await sendToSheets(payload);
-    if(result.ok){
-      showToast('✅ ส่ง Sheets สำเร็จ!');
-    } else if(!result.skipped){
-      showToast('⚠️ ส่ง Sheets ไม่ได้ — บันทึกในเครื่องแล้ว');
-    }
-  }
-
   saveHistory();
   deductLog = [];
   noteLog = [];
@@ -1914,96 +1899,65 @@ function deleteNote(i){
   showToast('🗑 ลบ note แล้ว');
 }
 
-// ── GOOGLE SHEETS SYNC ────────────────────────────────────────
-let sheetsURL = localStorage.getItem('sheetsURL') || '';
-
-function openSheetsModal(){
-  const inp = $('sheetsUrlInput');
-  if(inp) inp.value = sheetsURL;
-  const res = $('sheetsTestResult');
-  if(res) res.style.display = 'none';
-  $('sheetsModal').style.display = 'flex';
+// ── COPY STOCK ─────────────────────────────────────────────────
+function copyStock(){
+  const lines = prods
+    .filter(p => stock[p.id] != null && stock[p.id] > 0)
+    .map(p => `${p.emoji} ${p.name}: ${stock[p.id]} ขวด`);
+  if(!lines.length){ showToast('ยังไม่มีสต็อก'); return; }
+  const txt = `📦 ของเหลือในถัง\n` + lines.join('\n');
+  navigator.clipboard.writeText(txt).then(()=>showToast('📋 Copy แล้ว!')).catch(()=>showToast('❌ Copy ไม่ได้'));
 }
 
-function saveSheetsURL(){
-  const val = ($('sheetsUrlInput').value||'').trim();
-  if(val && !val.startsWith('https://script.google.com')){
-    showToast('⚠️ URL ต้องขึ้นต้นด้วย script.google.com'); return;
-  }
-  sheetsURL = val;
-  if(val) localStorage.setItem('sheetsURL', val);
-  else localStorage.removeItem('sheetsURL');
-  $('sheetsModal').style.display = 'none';
-  showToast(val ? '✅ บันทึก URL แล้ว' : '🗑 ลบ URL แล้ว');
-  updateSheetsBtnLabel();
+// ── EXPORT / IMPORT ────────────────────────────────────────────
+function exportData(){
+  const data = {
+    v: 2,
+    exported: new Date().toISOString(),
+    prods: prods,
+    shiftHistory: JSON.parse(localStorage.getItem('shiftHistory')||'[]'),
+    ppPhone: ppPhone,
+    session: JSON.parse(localStorage.getItem('session')||'null'),
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const d = new Date();
+  a.href = url;
+  a.download = `seveneight_backup_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 Export แล้ว!');
 }
 
-function clearSheetsURL(){
-  sheetsURL = '';
-  localStorage.removeItem('sheetsURL');
-  const inp = $('sheetsUrlInput'); if(inp) inp.value = '';
-  const res = $('sheetsTestResult'); if(res) res.style.display = 'none';
-  showToast('🗑 ยกเลิกการเชื่อม Sheets แล้ว');
-  updateSheetsBtnLabel();
+function importData(){
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.json,application/json';
+  inp.onchange = e => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(!data.v || !data.shiftHistory){ showToast('❌ ไฟล์ไม่ถูกต้อง'); return; }
+        if(!confirm(`📥 Import ข้อมูล?\nจะทับข้อมูลในเครื่องทั้งหมด\n(Export จาก: ${data.exported||'ไม่ทราบ'})`)) return;
+        // restore
+        if(data.prods){ prods = data.prods; localStorage.setItem('prods', JSON.stringify(prods)); }
+        if(data.shiftHistory) localStorage.setItem('shiftHistory', JSON.stringify(data.shiftHistory));
+        if(data.ppPhone){ ppPhone = data.ppPhone; localStorage.setItem('ppPhone', ppPhone); }
+        if(data.session){ localStorage.setItem('session', JSON.stringify(data.session)); }
+        showToast('✅ Import สำเร็จ! กำลัง reload…');
+        setTimeout(()=>location.reload(), 1200);
+      }catch(e){ showToast('❌ อ่านไฟล์ไม่ได้'); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
 }
 
-function updateSheetsBtnLabel(){
-  const btn = $('sheetsBtnSummary');
-  if(!btn) return;
-  if(sheetsURL){
-    btn.textContent = '📊 Google Sheets ✅';
-    btn.style.borderColor = 'var(--green)';
-    btn.style.color = 'var(--green)';
-  } else {
-    btn.textContent = '📊 Google Sheets';
-    btn.style.borderColor = 'var(--accent)';
-    btn.style.color = 'var(--accent)';
-  }
-}
-
-async function testSheetsURL(){
-  const val = ($('sheetsUrlInput').value||'').trim();
-  const res = $('sheetsTestResult');
-  if(!val){ res.textContent='⚠️ ใส่ URL ก่อน'; res.style.background='#2b1a00'; res.style.color='var(--yellow)'; res.style.display='block'; return; }
-  res.textContent='⏳ กำลังทดสอบ…'; res.style.background='var(--card2)'; res.style.color='var(--muted)'; res.style.display='block';
-  try{
-    const r = await fetch(val, { method:'GET' });
-    const j = await r.json();
-    if(j.ok){
-      res.textContent='✅ เชื่อมต่อได้! พร้อมใช้งาน';
-      res.style.background='#1a3a1a'; res.style.color='var(--green)';
-    } else {
-      res.textContent='❌ ตอบกลับผิดปกติ: '+JSON.stringify(j);
-      res.style.background='#2b1515'; res.style.color='var(--red)';
-    }
-  }catch(err){
-    res.textContent='❌ เชื่อมไม่ได้: '+err.message;
-    res.style.background='#2b1515'; res.style.color='var(--red)';
-  }
-}
-
-async function sendToSheets(shiftData){
-  if(!sheetsURL) return { ok: false, skipped: true };
-  try{
-    const r = await fetch(sheetsURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' }, // Apps Script ต้องการ text/plain หรือใช้ no-cors
-      body: JSON.stringify(shiftData)
-    });
-    const j = await r.json();
-    return j;
-  }catch(err){
-    return { ok: false, error: err.message };
-  }
-}
-
-function buildShiftPayload(){
-  const tb = prods.reduce((s,p)=>s+(sold[p.id]||0),0);
-  const tm = cashT + xferT;
-  const wage = tb >= WAGE_GOAL ? WAGE_BONUS : WAGE_BASE;
-  const si = prods.filter(p=>(sold[p.id]||0)>0).map(p=>({id:p.id,name:p.name,emoji:p.emoji,qty:sold[p.id],price:p.price}));
-  const sk = prods.filter(p=>stock[p.id]!=null).map(p=>({id:p.id,name:p.name,emoji:p.emoji,remaining:stock[p.id]}));
-  return { date:startDate||new Date().toISOString(), shiftN, cashT, xferT, totalBottles:tb, totalMoney:tm, wage, items:si, stockEnd:sk, deductLog:[...deductLog], noteLog:[...noteLog] };
+function openExportImportModal(){
+  $('exportImportModal').style.display = 'flex';
 }
 
 // ── INIT ───────────────────────────────────────────────────────
@@ -2066,40 +2020,32 @@ if(!restoreSession()){ showScreen('setupScreen'); }
   <div id="confirmBox">
     <h3>⚠️ ปิดกะและเริ่มใหม่?</h3>
     <p>ข้อมูลกะนี้จะถูกบันทึกในประวัติ<br>แล้วเริ่มกะใหม่ทันที</p>
-    <!-- Google Sheets status -->
-    <div id="sheetsStatusBox" style="margin:10px 0 4px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;text-align:left;display:none"></div>
     <button onclick="doNewShift()" class="btn btn-red" style="background:var(--red);color:#fff;margin-top:0">✔ ยืนยัน ปิดกะ</button>
     <button onclick="$('confirmModal').classList.remove('show')" class="btn btn-outline" style="margin-top:8px">✕ ยกเลิก</button>
   </div>
 </div>
 
-<!-- GOOGLE SHEETS SETTINGS MODAL -->
-<div id="sheetsModal" style="display:none;position:fixed;inset:0;background:#000a;z-index:9999;align-items:flex-end;justify-content:center">
+<!-- /SHEETS REMOVED -->
+
+<!-- EXPORT / IMPORT MODAL -->
+<div id="exportImportModal" style="display:none;position:fixed;inset:0;background:#000a;z-index:9999;align-items:flex-end;justify-content:center">
   <div style="background:var(--card);border-top:2px solid var(--border);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:500px">
-    <h3 style="font-size:18px;font-weight:800;margin-bottom:4px">📊 เชื่อม Google Sheets</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">ข้อมูลกะจะถูกส่งไป Sheets อัตโนมัติตอนปิดกะ</p>
+    <h3 style="font-size:18px;font-weight:800;margin-bottom:4px">💾 Export / Import ข้อมูล</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">สำรองข้อมูลหรือย้ายไปเครื่องใหม่ได้เลย</p>
 
-    <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Apps Script URL</div>
-    <input id="sheetsUrlInput" type="url" placeholder="https://script.google.com/macros/s/…/exec"
-      style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px;word-break:break-all">
-
-    <div id="sheetsTestResult" style="display:none;font-size:13px;font-weight:700;padding:10px 14px;border-radius:10px;margin-bottom:10px"></div>
-
-    <div style="display:flex;gap:8px">
-      <button onclick="testSheetsURL()" style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px;font-weight:700;font-size:14px;color:var(--text);cursor:pointer">🔍 ทดสอบ</button>
-      <button onclick="saveSheetsURL()" style="flex:1;background:var(--accent);border:none;border-radius:12px;padding:12px;font-weight:800;font-size:14px;color:#000;cursor:pointer">💾 บันทึก</button>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:800;margin-bottom:4px">📤 Export</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">ดาวน์โหลดไฟล์ backup ที่มีประวัติกะ, สินค้า, และข้อมูลกะปัจจุบัน</div>
+      <button onclick="exportData()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:800;cursor:pointer">📥 ดาวน์โหลด Backup</button>
     </div>
-    <button onclick="clearSheetsURL()" style="width:100%;margin-top:8px;background:none;border:1px solid var(--red);border-radius:12px;padding:10px;font-weight:700;font-size:13px;color:var(--red);cursor:pointer">🗑 ลบ URL (ปิดการเชื่อม)</button>
-    <button onclick="$('sheetsModal').style.display='none'" class="btn btn-outline" style="margin-top:8px">✕ ปิด</button>
 
-    <div style="margin-top:16px;padding:14px;background:var(--card2);border-radius:12px;font-size:12px;color:var(--muted);line-height:1.8">
-      <div style="font-weight:800;color:var(--text);margin-bottom:6px">📋 วิธีตั้งค่า (ทำครั้งแรกครั้งเดียว)</div>
-      <div>1. เปิด <strong style="color:var(--accent)">script.google.com</strong> → New Project</div>
-      <div>2. วางโค้ดจากไฟล์ <strong style="color:var(--accent)">SevenEight_AppScript.gs</strong></div>
-      <div>3. กด Deploy → New deployment → Web app</div>
-      <div>4. Execute as: <strong>Me</strong> / Access: <strong>Anyone</strong></div>
-      <div>5. Copy URL มาวางด้านบน แล้วกด บันทึก</div>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px">
+      <div style="font-size:15px;font-weight:800;margin-bottom:4px">📥 Import</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">โหลดไฟล์ backup กลับเข้ามา — จะทับข้อมูลในเครื่องทั้งหมด</div>
+      <button onclick="importData()" style="width:100%;background:var(--green);color:#000;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:800;cursor:pointer">📂 เลือกไฟล์ Backup</button>
     </div>
+
+    <button onclick="$('exportImportModal').style.display='none'" class="btn btn-outline">✕ ปิด</button>
   </div>
 </div>
 </body>
