@@ -168,10 +168,9 @@ button,input{font-family:'Sarabun',sans-serif}
     height:calc(100dvh - 58px) !important;
   }
 
-  /* sum-right โชว์บน tablet */
-  #sum-right{ display:block !important; }
-  /* ซ่อน section จัดการบน mobile ให้ย้ายไปอยู่ใน sum-right แทน (ซ่อนบน mobile) */
-  #sum-manage-mobile, #sum-note-mobile, #sum-newshift-mobile { display:none !important; }
+  /* sum-right ซ่อนไว้ก่อน เพราะ content อยู่ใน sum-left ทั้งหมด */
+  #sum-right{ display:none !important; }
+  /* ซ่อน section จัดการบน mobile ให้อยู่ใน sum-left อย่างเดียว */
 
   /* ซ่อน scrollbar ทุก panel (ยังเลื่อนได้ แต่ไม่โชว์แถบ) */
   #sell-left, #sell-right,
@@ -604,35 +603,8 @@ button,input{font-family:'Sarabun',sans-serif}
       <button onclick="copyStock()" class="btn btn-outline" style="margin-top:8px;font-size:14px;border-color:var(--green);color:var(--green)">📦 Copy ของเหลือในถัง</button>
     </div>
 
-    <!-- ── กลุ่ม: จัดการ (mobile only — ซ่อนบน tablet) ── -->
-    <div id="sum-manage-mobile" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">⚙️ จัดการ</div>
-      <button onclick="openDeductModal()" class="btn btn-outline" style="font-size:14px;border-color:var(--yellow);color:var(--yellow)">📦 หักสต็อก (เบิกใช้/Grab/ของเสีย)</button>
-    </div>
-
-    <!-- ── Note (mobile only) ── -->
-    <div id="sum-note-mobile" class="card" style="margin-top:12px;border-color:var(--border)">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📝 Note เพิ่มเติม</div>
-      <div id="sNoteList"></div>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <input id="sNoteInput" placeholder="จดอะไรก็ได้ เช่น ลืมนับ, ของขาด…" onkeydown="if(event.key==='Enter')addNote()"
-          style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;outline:none"/>
-        <button onclick="addNote()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer">ส่ง</button>
-      </div>
-    </div>
-
-    <!-- ── ปิดกะ (mobile only) ── -->
-    <div id="sum-newshift-mobile" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-      <button onclick="confirmNewShift()" class="btn btn-outline" style="font-size:15px">🔄 เริ่มกะใหม่</button>
-    </div>
-
-  </div>
-
-  <!-- ขวา: tablet only — จัดการ, หักสต็อก, Note, ปิดกะ -->
-  <div id="sum-right">
-
     <!-- ── กลุ่ม: จัดการ ── -->
-    <div style="padding-top:8px;margin-bottom:4px">
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
       <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">⚙️ จัดการ</div>
       <button onclick="openDeductModal()" class="btn btn-outline" style="font-size:14px;border-color:var(--yellow);color:var(--yellow)">📦 หักสต็อก (เบิกใช้/Grab/ของเสีย)</button>
     </div>
@@ -658,8 +630,10 @@ button,input{font-family:'Sarabun',sans-serif}
     <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
       <button onclick="confirmNewShift()" class="btn btn-outline" style="font-size:15px">🔄 เริ่มกะใหม่</button>
     </div>
-
   </div>
+
+  <!-- ขวา: tablet only — ว่างไว้ เนื้อหาทั้งหมดอยู่ใน sum-left -->
+  <!-- sum-right ใช้บน tablet เท่านั้น ตอนนี้ว่าง content อยู่ใน sum-left ทั้งหมด -->
 </div>
 
 
@@ -1957,21 +1931,20 @@ async function doNewShift(){
 // ── SHIFT NOTE ─────────────────────────────────────────────────
 let noteLog = []; // [{text}]
 function renderNoteList(){
-  const html = !noteLog.length ? '' : noteLog.map((n,i)=>`<div style="font-size:13px;padding:7px 0;border-bottom:1px solid var(--border);color:var(--text);display:flex;align-items:center;gap:8px">
+  const el=$('sNoteList'); if(!el) return;
+  if(!noteLog.length){ el.innerHTML=''; return; }
+  el.innerHTML=noteLog.map((n,i)=>`<div style="font-size:13px;padding:7px 0;border-bottom:1px solid var(--border);color:var(--text);display:flex;align-items:center;gap:8px">
     <span style="flex:1;line-height:1.5">-${n.text}</span>
     <button onclick="editNote(${i})" style="background:var(--card2);border:1.5px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px;flex-shrink:0">✏️</button>
     <button onclick="deleteNote(${i})" style="background:var(--card2);border:1.5px solid var(--red);color:var(--red);font-size:14px;font-weight:800;cursor:pointer;padding:4px 9px;border-radius:8px;flex-shrink:0">✕</button>
   </div>`).join('');
-  document.querySelectorAll('#sNoteList').forEach(el => el.innerHTML = html);
 }
 function addNote(){
-  // support both mobile (#sum-note-mobile) and tablet (#sum-right) inputs
-  const inputs = document.querySelectorAll('#sNoteInput');
-  let txt = '';
-  inputs.forEach(inp => { if(inp.value.trim()) txt = inp.value.trim(); });
+  const inp=$('sNoteInput'); if(!inp) return;
+  const txt=inp.value.trim();
   if(!txt){ showToast('พิมอะไรก่อนนะ'); return; }
   noteLog.push({text:txt});
-  inputs.forEach(inp => inp.value = '');
+  inp.value='';
   saveSession();
   renderNoteList();
 }
@@ -1992,11 +1965,11 @@ function deleteNote(i){
 
 // ── COPY STOCK ─────────────────────────────────────────────────
 function copyStock(){
-  const sk = prods.filter(p => stock[p.id] != null && stock[p.id] > 0);
-  if(!sk.length){ showToast('ยังไม่มีสต็อก'); return; }
-  const total = sk.reduce((s,p) => s + stock[p.id], 0);
-  const lines = sk.map(p => `${p.name} ${stock[p.id]}`);
-  const txt = `เหลือในถัง: ${total} ขวด\n` + lines.join('\n');
+  const lines = prods
+    .filter(p => stock[p.id] != null && stock[p.id] > 0)
+    .map(p => `${p.emoji} ${p.name}: ${stock[p.id]} ขวด`);
+  if(!lines.length){ showToast('ยังไม่มีสต็อก'); return; }
+  const txt = `📦 ของเหลือในถัง\n` + lines.join('\n');
   navigator.clipboard.writeText(txt).then(()=>showToast('📋 Copy แล้ว!')).catch(()=>showToast('❌ Copy ไม่ได้'));
 }
 
