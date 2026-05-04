@@ -54,6 +54,40 @@ button,input{font-family:'Sarabun',sans-serif}
 #flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:var(--green);color:#000;font-size:24px;font-weight:800;padding:20px 36px;border-radius:20px;z-index:999;box-shadow:0 8px 40px #0009;transition:transform .15s,opacity .3s;opacity:0;pointer-events:none}
 #flash.show{transform:translate(-50%,-50%) scale(1);opacity:1}
 
+/* ── ANIMATIONS ─────────────────────────────────────────────── */
+@keyframes pop-in{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes slide-in{0%{transform:translateX(-14px);opacity:0}100%{transform:translateX(0);opacity:1}}
+@keyframes fade-up{0%{transform:translateY(8px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes ripple{0%{transform:scale(0);opacity:.5}100%{transform:scale(3.5);opacity:0}}
+@keyframes count-bounce{0%,100%{transform:scale(1)}40%{transform:scale(1.18)}70%{transform:scale(.95)}}
+@keyframes flash-pop{0%{transform:translate(-50%,-50%) scale(.7);opacity:0}60%{transform:translate(-50%,-50%) scale(1.08);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes flash-out{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.85)}}
+
+/* prod-card กด */
+.prod-card{transition:border-color .15s,background .15s,transform .12s;}
+.prod-card:active{transform:scale(.93);}
+.prod-card.pop{animation:pop-in .22s ease-out both;}
+
+/* cart-row เพิ่มใหม่ */
+.cart-row{animation:slide-in .18s ease-out both;}
+
+/* qty เปลี่ยน */
+.qty-bump{animation:count-bounce .22s ease-out;}
+
+/* ยอดรวมกระโดด */
+.total-bump{animation:count-bounce .25s ease-out;}
+
+/* flash สวยขึ้น */
+#flash{transition:none;}
+#flash.show{animation:flash-pop .25s ease-out both;}
+#flash.hide{animation:flash-out .2s ease-in both;}
+
+/* ripple บนปุ่มสินค้า */
+.prod-card .ripple{position:absolute;border-radius:50%;background:rgba(88,166,255,.25);transform:scale(0);animation:ripple .45s ease-out;pointer-events:none;}
+
+/* หน้าสรุป: ยอดเงินโผล่ขึ้นมา */
+#sMoney.animate{animation:fade-up .35s ease-out both;}
+
 /* numpad */
 #numpad-overlay{display:none;position:fixed;inset:0;z-index:99999;flex-direction:column;justify-content:flex-end;background:#0008}
 #numpad-overlay.show{display:flex}
@@ -298,7 +332,11 @@ button,input{font-family:'Sarabun',sans-serif}
   <div class="card" style="padding:12px 14px">
     <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700">➕ เพิ่มสินค้าใหม่</div>
     <div style="display:flex;gap:8px">
-      <input id="sEmoji" value="📦" maxlength="2" style="width:48px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px;color:var(--text);font-size:18px;text-align:center;outline:none">
+      <button id="sEmojiBtn" onclick="openEmojiPicker('sEmoji','sEmojiBtn')"
+        style="width:54px;height:40px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:20px;cursor:pointer;flex-shrink:0;position:relative">
+        <span id="sEmojiDisplay">📦</span>
+      </button>
+      <input id="sEmoji" type="hidden" value="📦">
       <input id="sName" placeholder="ชื่อสินค้า" style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px 10px;color:var(--text);font-size:14px;outline:none">
       <input type="number" inputmode="numeric" id="sPrice" placeholder="฿" style="width:64px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px;color:var(--text);font-size:14px;text-align:center;outline:none">
       <button onclick="setupAddProd()" style="background:var(--accent);color:#000;border:none;border-radius:10px;padding:7px 14px;font-weight:800;font-size:20px;cursor:pointer;line-height:1">+</button>
@@ -692,7 +730,31 @@ const fmt = n => n.toLocaleString()+'฿';
 const uid = () => 'p_'+Math.random().toString(36).slice(2,8);
 
 function showToast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
-function showFlash(){ const f=$('flash'); f.classList.add('show'); setTimeout(()=>f.classList.remove('show'),900); }
+function countUp(el, target, duration=600){
+  if(!el) return;
+  const start = parseInt(el.dataset.val||'0') || 0;
+  el.dataset.val = target;
+  const diff = target - start;
+  const startTime = performance.now();
+  el.classList.remove('animate'); void el.offsetWidth; el.classList.add('animate');
+  function step(now){
+    const p = Math.min((now - startTime) / duration, 1);
+    const ease = 1 - Math.pow(1-p, 3); // ease-out cubic
+    const val = Math.round(start + diff * ease);
+    el.textContent = val.toLocaleString() + '฿';
+    if(p < 1) requestAnimationFrame(step);
+    else el.textContent = target.toLocaleString() + '฿';
+  }
+  requestAnimationFrame(step);
+}
+
+function showFlash(){
+  const f=$('flash');
+  f.classList.remove('show','hide');
+  void f.offsetWidth;
+  f.classList.add('show');
+  setTimeout(()=>{ f.classList.remove('show'); f.classList.add('hide'); setTimeout(()=>f.classList.remove('hide'),200); }, 900);
+}
 
 // ── SOUND ──────────────────────────────────────────────────────
 function playClick(){
@@ -814,7 +876,8 @@ function setupAddProd(){
   if(!name||!price){ showToast('ใส่ชื่อและราคาด้วยนะ'); return; }
   prods.push({id:uid(),name,emoji,price,color:'#888',group:'other'});
   localStorage.setItem('prods',JSON.stringify(prods));
-  $('sName').value=''; $('sPrice').value=''; $('sEmoji').value='📦';
+  $('sName').value=''; $('sPrice').value='';
+  $('sEmoji').value='📦'; $('sEmojiDisplay').textContent='📦';
   renderSetupProds();
 }
 function startClock(){
@@ -847,7 +910,7 @@ function renderSell(){
       const qty=cart[p.id]||0;
       const sk=stock[p.id]!=null; const sl=sk?stock[p.id]:null;
       const oos=sk&&sl<=0;
-      html+=`<div class="prod-card${qty>0?' in-cart':''}" onclick="${oos?'':'addC(\''+p.id+'\')'}" style="cursor:${oos?'not-allowed':'pointer'};opacity:${oos?'.4':'1'}">
+      html+=`<div class="prod-card${qty>0?' in-cart':''}" data-id="${p.id}" onclick="${oos?'':'addC(\''+p.id+'\')'}" style="cursor:${oos?'not-allowed':'pointer'};opacity:${oos?'.4':'1'}">
         ${qty>0?`<div class="prod-badge">${qty}</div>`:''}
         <div style="font-size:34px">${p.emoji}</div>
         <div style="font-weight:700;font-size:14px;margin-top:5px">${p.name}</div>
@@ -863,7 +926,18 @@ function renderSell(){
 function addC(id){
   const sl=stock[id]; const sk=sl!=null;
   if(sk&&(cart[id]||0)>=sl){ showToast('สต็อกหมด!'); return; }
-  cart[id]=(cart[id]||0)+1; saveSession(); playClick(); renderSell();
+  cart[id]=(cart[id]||0)+1; saveSession(); playClick();
+  // ripple effect บนปุ่มสินค้า
+  const card=document.querySelector(`.prod-card[data-id="${id}"]`);
+  if(card){
+    const r=document.createElement('span'); r.className='ripple';
+    const s=Math.max(card.offsetWidth,card.offsetHeight);
+    r.style.cssText=`width:${s}px;height:${s}px;left:${card.offsetWidth/2-s/2}px;top:${card.offsetHeight/2-s/2}px`;
+    card.appendChild(r); setTimeout(()=>r.remove(),460);
+    card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+    setTimeout(()=>card.classList.remove('pop'),220);
+  }
+  renderSell();
 }
 function chgQty(id,d){
   cart[id]=(cart[id]||0)+d;
@@ -906,13 +980,15 @@ function renderCart(){
 
   // mobile cart
   const el=$('cartEl'); if(el) el.innerHTML=cartHTML;
-  const tot=$('cartTotalEl'); if(tot) tot.textContent=hasItems?total.toLocaleString()+'฿':'0฿';
+  const tot=$('cartTotalEl');
+  if(tot){ const newTxt=hasItems?total.toLocaleString()+'฿':'0฿'; if(tot.textContent!==newTxt){ tot.textContent=newTxt; tot.classList.remove('total-bump'); void tot.offsetWidth; tot.classList.add('total-bump'); setTimeout(()=>tot.classList.remove('total-bump'),260); } }
   const pb=$('payBtnsEl'); if(pb) pb.style.display=hasItems?'flex':'none';
   const cb=$('clrBtn'); if(cb) cb.style.visibility=hasItems?'visible':'hidden';
 
   // tablet cart
   const el2=$('cartEl2'); if(el2) el2.innerHTML=cartHTML;
-  const tot2=$('cartTotalEl2'); if(tot2) tot2.textContent=hasItems?total.toLocaleString()+'฿':'0฿';
+  const tot2=$('cartTotalEl2');
+  if(tot2){ const newTxt=hasItems?total.toLocaleString()+'฿':'0฿'; if(tot2.textContent!==newTxt){ tot2.textContent=newTxt; tot2.classList.remove('total-bump'); void tot2.offsetWidth; tot2.classList.add('total-bump'); setTimeout(()=>tot2.classList.remove('total-bump'),260); } }
   const pb2=$('payBtnsEl2'); if(pb2) pb2.style.display=hasItems?'flex':'none';
   const cb2=$('clrBtn2'); if(cb2) cb2.style.visibility=hasItems?'visible':'hidden';
 
@@ -1140,7 +1216,7 @@ function renderSum(){
   const tl=sk.reduce((s,p)=>s+stock[p.id],0);
   $('sHdr').textContent=`📅 ${today()} · กะ${shiftN}`;
   $('sBottles').textContent=`ขาย ${tb} ขวด`;
-  $('sMoney').textContent=tm.toLocaleString()+'฿';
+  countUp($('sMoney'), tm);
   $('sCash').textContent=fmt(cashT); $('sXfer').textContent=fmt(xferT);
   // goal floating text
   const GOAL=25;
@@ -1286,13 +1362,11 @@ function deleteDeduct(i){
 }
 function editDeduct(i){
   const d = deductLog[i];
-  const newNote = prompt('แก้ไข message:', d.note);
-  if(newNote === null) return;
-  if(!newNote.trim()){ showToast('ใส่เหตุผลด้วยนะ'); return; }
-  deductLog[i].note = newNote.trim();
-  saveSession();
-  renderSum();
-  showToast('✅ แก้ไขแล้ว');
+  showPrompt('แก้ไขหมายเหตุ', d.note, 'บันทึก', (val)=>{
+    if(!val.trim()){ showToast('ใส่เหตุผลด้วยนะ'); return; }
+    deductLog[i].note = val.trim();
+    saveSession(); renderSum(); showToast('✅ แก้ไขแล้ว');
+  });
 }
 function closeDeductModal(){ $('deductModal').style.display = 'none'; }
 function confirmDeduct(){
@@ -1467,7 +1541,10 @@ function chkEditMix(){
 }
 function saveEditLog(){
   const tx=txLog.find(t=>t.id===editLogId); if(!tx) return;
-  if(!tx.items.length){ if(!confirm('รายการว่าง จะลบออกเลยมั้ย?')) return; deleteLogEntry(); return; }
+  if(!tx.items.length){
+    showConfirm('รายการว่างเปล่า','จะลบรายการนี้ออกเลยมั้ย?','🗑 ลบเลย',()=>deleteLogEntryConfirmed(),'var(--red)');
+    return;
+  }
   // recompute sold totals from scratch
   prods.forEach(p=>{ sold[p.id]=0; });
   txLog.forEach(t=>t.items.forEach(it=>{ sold[it.id]=(sold[it.id]||0)+it.qty; }));
@@ -1497,9 +1574,10 @@ function saveEditLog(){
   showToast('✅ แก้ไขแล้ว');
 }
 function deleteLogEntry(){
-  if(!confirm('ลบรายการนี้?')) return;
+  showConfirm('ลบรายการนี้?','การลบไม่สามารถย้อนกลับได้','🗑 ลบเลย',()=>deleteLogEntryConfirmed(),'var(--red)');
+}
+function deleteLogEntryConfirmed(){
   txLog=txLog.filter(t=>t.id!==editLogId);
-  // recompute
   prods.forEach(p=>{ sold[p.id]=0; });
   txLog.forEach(t=>t.items.forEach(it=>{ sold[it.id]=(sold[it.id]||0)+it.qty; }));
   if(window._origStock){ prods.forEach(p=>{ if(_origStock[p.id]!=null) stock[p.id]=Math.max(0,_origStock[p.id]-(sold[p.id]||0)); }); }
@@ -1909,12 +1987,13 @@ function renderHistWageResult(h, wage){
     </div>`;
 }
 function deleteHistEntry(){
-  if(!confirm('ลบประวัติกะนี้?')) return;
-  const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
-  hist.splice(currentHistIdx, 1);
-  localStorage.setItem('shiftHistory', JSON.stringify(hist));
-  showToast('🗑 ลบแล้ว');
-  goTab('history');
+  showConfirm('ลบประวัติกะนี้?','การลบไม่สามารถย้อนกลับได้','🗑 ลบเลย', ()=>{
+    const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+    hist.splice(currentHistIdx, 1);
+    localStorage.setItem('shiftHistory', JSON.stringify(hist));
+    showToast('🗑 ลบแล้ว');
+    goTab('history');
+  });
 }
 async function doNewShift(){
   $('confirmModal').classList.remove('show');
@@ -1949,18 +2028,44 @@ function addNote(){
   renderNoteList();
 }
 function editNote(i){
-  const newText=prompt('แก้ไข note:',noteLog[i].text);
-  if(newText===null) return;
-  if(!newText.trim()){ showToast('ใส่ข้อความด้วยนะ'); return; }
-  noteLog[i].text=newText.trim();
-  saveSession();
-  renderNoteList();
+  showPrompt('แก้ไข note', noteLog[i].text, 'บันทึก', (val)=>{
+    if(!val.trim()){ showToast('ใส่ข้อความด้วยนะ'); return; }
+    noteLog[i].text=val.trim();
+    saveSession(); renderNoteList();
+  });
 }
 function deleteNote(i){
   noteLog.splice(i,1);
   saveSession();
   renderNoteList();
   showToast('🗑 ลบ note แล้ว');
+}
+
+// ── CUSTOM CONFIRM DIALOG ──────────────────────────────────────
+function showConfirm(title, msg, okLabel, onOk, okColor='var(--red)'){
+  const m = $('customConfirmModal');
+  $('customConfirmTitle').textContent = title;
+  $('customConfirmMsg').textContent = msg;
+  const btn = $('customConfirmOk');
+  btn.textContent = okLabel;
+  btn.style.background = okColor;
+  btn.style.color = '#fff';
+  btn.onclick = () => { m.style.display='none'; onOk(); };
+  m.style.display = 'flex';
+}
+
+function showPrompt(title, defaultVal, okLabel, onOk){
+  const m = $('customPromptModal');
+  $('customPromptTitle').textContent = title;
+  const inp = $('customPromptInput');
+  inp.value = defaultVal || '';
+  $('customPromptOk').textContent = okLabel;
+  $('customPromptOk').onclick = () => {
+    m.style.display = 'none';
+    onOk(inp.value);
+  };
+  m.style.display = 'flex';
+  setTimeout(()=>inp.focus(), 100);
 }
 
 // ── COPY STOCK ─────────────────────────────────────────────────
@@ -2005,14 +2110,14 @@ function importData(){
       try{
         const data = JSON.parse(ev.target.result);
         if(!data.v || !data.shiftHistory){ showToast('❌ ไฟล์ไม่ถูกต้อง'); return; }
-        if(!confirm(`📥 Import ข้อมูล?\nจะทับข้อมูลในเครื่องทั้งหมด\n(Export จาก: ${data.exported||'ไม่ทราบ'})`)) return;
-        // restore
-        if(data.prods){ prods = data.prods; localStorage.setItem('prods', JSON.stringify(prods)); }
-        if(data.shiftHistory) localStorage.setItem('shiftHistory', JSON.stringify(data.shiftHistory));
-        if(data.ppPhone){ ppPhone = data.ppPhone; localStorage.setItem('ppPhone', ppPhone); }
-        if(data.session){ localStorage.setItem('session', JSON.stringify(data.session)); }
-        showToast('✅ Import สำเร็จ! กำลัง reload…');
-        setTimeout(()=>location.reload(), 1200);
+        showConfirm('Import ข้อมูล?', `จะทับข้อมูลในเครื่องทั้งหมด\nExport จาก: ${data.exported||'ไม่ทราบ'}`, '📥 Import เลย', ()=>{
+          if(data.prods){ prods = data.prods; localStorage.setItem('prods', JSON.stringify(prods)); }
+          if(data.shiftHistory) localStorage.setItem('shiftHistory', JSON.stringify(data.shiftHistory));
+          if(data.ppPhone){ ppPhone = data.ppPhone; localStorage.setItem('ppPhone', ppPhone); }
+          if(data.session){ localStorage.setItem('session', JSON.stringify(data.session)); }
+          showToast('✅ Import สำเร็จ! กำลัง reload…');
+          setTimeout(()=>location.reload(), 1200);
+        }, 'var(--accent)');
       }catch(e){ showToast('❌ อ่านไฟล์ไม่ได้'); }
     };
     r.readAsText(f);
@@ -2112,5 +2217,153 @@ if(!restoreSession()){ showScreen('setupScreen'); }
     <button onclick="$('exportImportModal').style.display='none'" class="btn btn-outline">✕ ปิด</button>
   </div>
 </div>
+
+<!-- CUSTOM PROMPT MODAL -->
+<div id="customPromptModal" style="display:none;position:fixed;inset:0;background:#000a;z-index:10000;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 22px;width:100%;max-width:320px;animation:pop-in .2s ease-out both">
+    <div id="customPromptTitle" style="font-size:18px;font-weight:800;margin-bottom:16px"></div>
+    <input id="customPromptInput"
+      style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:15px;font-family:'Sarabun',sans-serif;outline:none;margin-bottom:16px"
+      onkeydown="if(event.key==='Enter') $('customPromptOk').click()">
+    <div style="display:flex;gap:10px">
+      <button onclick="$('customPromptModal').style.display='none'"
+        style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:13px;font-size:15px;font-weight:700;color:var(--text);cursor:pointer">ยกเลิก</button>
+      <button id="customPromptOk"
+        style="flex:1;background:var(--accent);color:#000;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:800;cursor:pointer"></button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM CONFIRM MODAL -->
+<div id="customConfirmModal" style="display:none;position:fixed;inset:0;background:#000a;z-index:10000;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 22px;width:100%;max-width:320px;text-align:center;animation:pop-in .2s ease-out both">
+    <div id="customConfirmTitle" style="font-size:18px;font-weight:800;margin-bottom:8px"></div>
+    <div id="customConfirmMsg" style="font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6"></div>
+    <div style="display:flex;gap:10px">
+      <button onclick="$('customConfirmModal').style.display='none'"
+        style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:13px;font-size:15px;font-weight:700;color:var(--text);cursor:pointer">ยกเลิก</button>
+      <button id="customConfirmOk"
+        style="flex:1;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:800;cursor:pointer"></button>
+    </div>
+  </div>
+</div>
+<style>#customConfirmModal.show{display:flex}</style>
+
+<!-- EMOJI PICKER MODAL -->
+<div id="emojiPickerModal" style="display:none;position:fixed;inset:0;background:#000a;z-index:10001;align-items:flex-end;justify-content:center">
+  <div style="background:var(--card);border-top:2px solid var(--border);border-radius:20px 20px 0 0;padding:20px 16px 36px;width:100%;max-width:500px;animation:slide-up .2s ease-out both">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div style="font-size:15px;font-weight:800">เลือกอิโมจิ</div>
+      <button onclick="closeEmojiPicker()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">เลือกได้ 1–3 ตัว · กดซ้ำเพื่อลบ</div>
+
+    <!-- Preview ที่เลือกไว้ -->
+    <div style="display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px">
+      <span style="font-size:11px;color:var(--muted);min-width:36px">เลือก:</span>
+      <span id="emojiPreview" style="font-size:24px;letter-spacing:3px;min-width:100px">📦</span>
+      <button onclick="clearEmojiSelection()" style="margin-left:auto;background:none;border:none;color:var(--red);font-size:12px;cursor:pointer;font-weight:700">ล้าง</button>
+    </div>
+
+    <!-- หมวดหมู่ -->
+    <div id="emojiCatTabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;scrollbar-width:none"></div>
+
+    <!-- Grid -->
+    <div id="emojiGrid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;max-height:240px;overflow-y:auto;scrollbar-width:none"></div>
+
+    <button id="emojiConfirmBtn" onclick="confirmEmojiPick()"
+      style="width:100%;margin-top:14px;background:var(--accent);color:#000;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:800;cursor:pointer">
+      ✔ ใช้อิโมจินี้
+    </button>
+  </div>
+</div>
+
+<script>
+const EMOJI_CATS = [
+  { label:'🍶 เครื่องดื่ม', emojis:['💧','🧊','🍵','☕','🧋','🍺','🍻','🥤','🧃','🍹','🍸','🥛','🍼','🫖','🍷','🥂','🍾','🫗'] },
+  { label:'🍎 ผลไม้', emojis:['🍎','🍊','🍋','🍇','🍓','🍑','🥭','🍍','🍌','🍉','🍒','🫐','🥝','🍈','🍐','🍏','🫒','🥑'] },
+  { label:'🍱 อาหาร', emojis:['🍱','🍜','🍛','🍣','🍙','🍚','🥗','🥙','🌮','🍔','🍟','🍕','🌯','🥪','🧆','🥨','🧀','🍳'] },
+  { label:'🎨 สี/รูปทรง', emojis:['🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔶','🔷','🔸','🔹','🟥','🟧','🟨','🟩','🟦'] },
+  { label:'⭐ ทั่วไป', emojis:['⭐','🌟','💫','✨','🔥','💎','🎁','🎀','🏷️','📦','🛍️','🧴','💊','🌈','❤️','💚','💙','💜'] },
+];
+
+let _emojiTargetId = 'sEmoji';
+let _emojiDisplayId = 'sEmojiDisplay';
+let _emojiSelected = [];
+let _currentCat = 0;
+
+function openEmojiPicker(targetId, displayId){
+  _emojiTargetId = targetId;
+  _emojiDisplayId = displayId;
+  const cur = $(_emojiTargetId)?.value || '📦';
+  _emojiSelected = [...cur].filter(c=>c.trim());
+  renderEmojiPicker();
+  $('emojiPickerModal').style.display = 'flex';
+}
+
+function closeEmojiPicker(){
+  $('emojiPickerModal').style.display = 'none';
+}
+
+function clearEmojiSelection(){
+  _emojiSelected = [];
+  renderEmojiGrid();
+  updateEmojiPreview();
+}
+
+function renderEmojiPicker(){
+  // tabs
+  const tabs = $('emojiCatTabs');
+  tabs.innerHTML = EMOJI_CATS.map((c,i)=>`
+    <button onclick="switchEmojiCat(${i})" id="emojiTab${i}"
+      style="flex-shrink:0;background:${i===_currentCat?'var(--accent)':'var(--card2)'};color:${i===_currentCat?'#000':'var(--muted)'};border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+      ${c.label}
+    </button>`).join('');
+  renderEmojiGrid();
+  updateEmojiPreview();
+}
+
+function switchEmojiCat(i){
+  _currentCat = i;
+  renderEmojiPicker();
+}
+
+function renderEmojiGrid(){
+  const cat = EMOJI_CATS[_currentCat];
+  $('emojiGrid').innerHTML = cat.emojis.map(e=>{
+    const sel = _emojiSelected.includes(e);
+    return `<button onclick="toggleEmoji('${e}')"
+      style="font-size:22px;background:${sel?'var(--accent)':'var(--card2)'};border:${sel?'2px solid var(--accent)':'1px solid var(--border)'};border-radius:10px;padding:6px 2px;cursor:pointer;transition:.1s;aspect-ratio:1">
+      ${e}
+    </button>`;
+  }).join('');
+}
+
+function toggleEmoji(e){
+  const idx = _emojiSelected.indexOf(e);
+  if(idx >= 0){
+    _emojiSelected.splice(idx,1);
+  } else {
+    if(_emojiSelected.length >= 3){ showToast('เลือกได้สูงสุด 3 ตัว'); return; }
+    _emojiSelected.push(e);
+  }
+  renderEmojiGrid();
+  updateEmojiPreview();
+}
+
+function updateEmojiPreview(){
+  $('emojiPreview').textContent = _emojiSelected.length ? _emojiSelected.join('') : '—';
+}
+
+function confirmEmojiPick(){
+  if(!_emojiSelected.length){ showToast('เลือกอิโมจิก่อนนะ'); return; }
+  const val = _emojiSelected.join('');
+  $(_emojiTargetId).value = val;
+  $(_emojiDisplayId).textContent = val;
+  closeEmojiPicker();
+}
+</script>
+
 </body>
 </html>
