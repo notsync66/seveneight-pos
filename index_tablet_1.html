@@ -332,8 +332,8 @@ button,input{font-family:'Sarabun',sans-serif}
   <div class="card" style="padding:12px 14px">
     <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700">➕ เพิ่มสินค้าใหม่</div>
     <div style="display:flex;gap:8px">
-      <button id="sEmojiBtn" onclick="openEmojiPicker('sEmoji','sEmojiBtn')"
-        style="width:54px;height:40px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:20px;cursor:pointer;flex-shrink:0;position:relative">
+      <button id="sEmojiBtn" onclick="openEmojiPicker('sEmoji','sEmojiDisplay')"
+        style="min-width:54px;height:40px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:18px;cursor:pointer;flex-shrink:0;position:relative;padding:0 6px">
         <span id="sEmojiDisplay">📦</span>
       </button>
       <input id="sEmoji" type="hidden" value="📦">
@@ -409,7 +409,11 @@ button,input{font-family:'Sarabun',sans-serif}
   <div class="card" style="padding:12px 14px;margin-top:4px">
     <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700">➕ เพิ่มสินค้าใหม่</div>
     <div style="display:flex;gap:8px">
-      <input id="epEmoji" value="📦" maxlength="2" style="width:48px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px;color:var(--text);font-size:18px;text-align:center;outline:none">
+      <button id="epEmojiBtn" onclick="openEmojiPicker('epEmoji','epEmojiDisplay')"
+        style="min-width:54px;height:40px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:18px;cursor:pointer;flex-shrink:0;padding:0 6px">
+        <span id="epEmojiDisplay">📦</span>
+      </button>
+      <input id="epEmoji" type="hidden" value="📦">
       <input id="epName" placeholder="ชื่อสินค้า" style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px 10px;color:var(--text);font-size:14px;outline:none">
       <input type="number" inputmode="numeric" id="epPrice" placeholder="฿" style="width:64px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:7px;color:var(--text);font-size:14px;text-align:center;outline:none">
       <button onclick="editProdsAdd()" style="background:var(--accent);color:#000;border:none;border-radius:10px;padding:7px 14px;font-weight:800;font-size:20px;cursor:pointer;line-height:1">+</button>
@@ -1186,7 +1190,7 @@ function editProdsAdd(){
   const emoji=$('epEmoji').value||'📦', name=$('epName').value.trim(), price=parseInt($('epPrice').value);
   if(!name||!price){ showToast('ใส่ชื่อและราคาด้วยนะ'); return; }
   tmpEditProds.push({id:uid(),name,emoji,price,color:'#888',group:'other'});
-  $('epName').value=''; $('epPrice').value=''; $('epEmoji').value='📦';
+  $('epName').value=''; $('epPrice').value=''; $('epEmoji').value='📦'; $('epEmojiDisplay').textContent='📦';
   renderEditProdList();
 }
 function saveEditProds(){
@@ -2270,7 +2274,7 @@ if(!restoreSession()){ showScreen('setupScreen'); }
     <div id="emojiCatTabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;scrollbar-width:none"></div>
 
     <!-- Grid -->
-    <div id="emojiGrid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;max-height:240px;overflow-y:auto;scrollbar-width:none"></div>
+    <div id="emojiGrid" style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px;max-height:300px;overflow-y:auto;scrollbar-width:none"></div>
 
     <button id="emojiConfirmBtn" onclick="confirmEmojiPick()"
       style="width:100%;margin-top:14px;background:var(--accent);color:#000;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:800;cursor:pointer">
@@ -2281,11 +2285,20 @@ if(!restoreSession()){ showScreen('setupScreen'); }
 
 <script>
 const EMOJI_CATS = [
-  { label:'🍶 เครื่องดื่ม', emojis:['💧','🧊','🍵','☕','🧋','🍺','🍻','🥤','🧃','🍹','🍸','🥛','🍼','🫖','🍷','🥂','🍾','🫗'] },
-  { label:'🍎 ผลไม้', emojis:['🍎','🍊','🍋','🍇','🍓','🍑','🥭','🍍','🍌','🍉','🍒','🫐','🥝','🍈','🍐','🍏','🫒','🥑'] },
-  { label:'🍱 อาหาร', emojis:['🍱','🍜','🍛','🍣','🍙','🍚','🥗','🥙','🌮','🍔','🍟','🍕','🌯','🥪','🧆','🥨','🧀','🍳'] },
-  { label:'🎨 สี/รูปทรง', emojis:['🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔶','🔷','🔸','🔹','🟥','🟧','🟨','🟩','🟦'] },
-  { label:'⭐ ทั่วไป', emojis:['⭐','🌟','💫','✨','🔥','💎','🎁','🎀','🏷️','📦','🛍️','🧴','💊','🌈','❤️','💚','💙','💜'] },
+  { label:'😀 หน้า', emojis:['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🫢','🫣','🤫','🤔','🫡','🤐','🤨','😐','😑','😶','🫥','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥸','🤡','😈','👿','💀','☠️','👻','👽','🤖','💩','😺','😸','😹','😻','😼','😽','🙀','😿','😾'] },
+  { label:'👋 มือ/คน', emojis:['👋','🤚','🖐','✋','🖖','🫱','🫲','🫳','🫴','👌','🤌','🤏','✌️','🤞','🫰','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','🫵','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🙏','✍️','💅','🤳','💪','🦾','🦵','🦶','👂','🦻','👃','🫀','🫁','🧠','👁','👀','👶','🧒','👦','👧','🧑','👱','👨','🧔','👩','🧓','👴','👵','🙍','🙎','🙅','🙆','💁','🙋','🧏','🙇','🤦','🤷','👮','🕵️','💂','🥷','👷','🫅','🤴','👸','👳','👲','🧕','🤵','👰','🤰','🫃','🫄','🤱','👼','🎅','🤶','🧑‍🎄','🦸','🦹','🧙','🧝','🧛','🧟','🧞','🧜','🧚','🧌','👫','👬','👭','💏','💑','👨‍👩‍👦','👨‍👩‍👧','👪'] },
+  { label:'🐶 สัตว์', emojis:['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪲','🦟','🦗','🪳','🕷','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🦭','🐊','🐅','🐆','🦓','🦍','🦧','🦣','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐕‍🦺','🐈','🐈‍⬛','🪶','🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿','🦔'] },
+  { label:'🌸 ธรรมชาติ', emojis:['🌸','🌺','🌻','🌹','🌷','🌼','💐','🪷','🌱','🌿','☘️','🍀','🎍','🎋','🍃','🍂','🍁','🪺','🪹','🍄','🌾','💮','🪸','🪨','🌵','🎄','🌲','🌳','🌴','🪵','🌊','🌬','🌀','🌈','🌂','☂️','☔','⛱','⚡','❄️','☃️','⛄','🌤','⛅','🌥','☁️','🌦','🌧','⛈','🌩','🌨','🌙','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','🌝','🌞','🪐','⭐','🌟','💫','✨','☄️','🌌','🌠','🎇','🎆','🌇','🌆','🏙','🌃','🌉','🌁'] },
+  { label:'🍎 ผลไม้', emojis:['🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶','🫑','🧄','🧅','🥔','🍠','🫘','🥜','🌰','🍞','🥐','🥖','🫓','🥨','🥯','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🌭','🍔','🍟','🍕','🫔','🌮','🌯','🥙','🧆','🥚','🍿','🧂','🥫','🍱','🍘','🍙','🍚','🍛','🍜','🍝','🍠','🍢','🍣','🍤','🍥','🥮','🍡','🥟','🥠','🥡','🦀','🦞','🦐','🦑','🦪','🍦','🍧','🍨','🍩','🍪','🎂','🍰','🧁','🥧','🍫','🍬','🍭','🍮','🍯'] },
+  { label:'🍹 เครื่องดื่ม', emojis:['🍵','☕','🫖','🍶','🍾','🍷','🍸','🍹','🍺','🍻','🥂','🥃','🫗','🥤','🧋','🧃','🧉','🧊','💧','🫧'] },
+  { label:'🚗 ยานพาหนะ', emojis:['🚗','🚕','🚙','🚌','🚎','🏎','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍','🛵','🛺','🚲','🛴','🛹','🛼','🚏','🛣','🛤','⛽','🛞','🚨','🚥','🚦','🛑','🚧','⚓','🛟','⛵','🛶','🚤','🛥','🛳','⛴','🚢','✈️','🛩','🛫','🛬','🪂','💺','🚁','🚟','🚠','🚡','🛸','🚀','🛰','⛟','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚝','🚞','🚋','🚌','🚍','🚎','🚐'] },
+  { label:'🏠 สถานที่', emojis:['🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏧','🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','💒','🗼','🗽','⛪','🕌','🛕','🕍','⛩','🕋','⛲','⛺','🌁','🌃','🏙','🌄','🌅','🌆','🌇','🌉','🎠','🎡','🎢','💈','🎪','🛖','🏗','🧱','🪨','🪵','⛏','🔩','🗜','⚙️','🗡','⚔️','🛡','🔧','🔨','🪛','🔑','🗝','🔒','🔓'] },
+  { label:'⚽ กีฬา', emojis:['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🏒','🥍','🏑','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸','🥌','🎿','⛷','🏂','🪂','🏋','🤼','🤸','🤺','🏊','🏇','🚵','🏆','🥇','🥈','🥉','🏅','🎖','🎗','🎫','🎟','🎪','🤹','🎭','🩰','🎨','🖼','🎬','🎤','🎧','🎼','🎵','🎶','🎹','🪘','🥁','🪗','🎷','🎺','🎸','🪕','🎻','🎲','♟','🎯','🎳','🎮','🎰','🧩'] },
+  { label:'💡 วัตถุ', emojis:['💡','🔦','🕯','🪔','🧯','🛢','💰','💴','💵','💶','💷','💸','💳','🪙','💹','📈','📉','📊','📋','📌','📍','📎','🖇','📏','📐','✂️','🗃','🗄','🗑','🔒','🔓','🔏','🔐','🔑','🗝','🔨','🪓','⛏','⚒','🛠','🗡','⚔️','🛡','🔧','🔩','⚙️','🗜','⚖️','🦯','🔗','⛓','🪝','🧲','🪜','🧰','🧲','🪤','🧿','🧸','🪅','🪆','🖼','🧵','🪡','🧶','🪢','👓','🕶','🥽','🌂','☂️','💼','👜','👛','👝','🎒','🧳','🛒'] },
+  { label:'📱 เทคโนโลยี', emojis:['📱','💻','🖥','🖨','⌨️','🖱','🖲','💽','💾','💿','📀','📷','📸','📹','🎥','📽','🎞','📞','☎️','📟','📠','📺','📻','🧭','⏱','⏲','⏰','🕰','⌚','⏳','⌛','📡','🔋','🔌','💡','🔦','🕯','🧯','🛢','💴','💵','💸','💳','🪙','🧮','🔭','🔬','🩺','🩻','🩹','💊','💉','🩸','🧬','🦠','🧫','🧪','🌡','🧲'] },
+  { label:'📦 สินค้า/ร้าน', emojis:['📦','🛍','🛒','🏷','💝','🎁','🎀','🎊','🎉','🎈','🎏','🎐','🎑','🧧','🛎','🔔','🔕','📣','📢','💬','💭','🗯','📝','✏️','🖊','🖋','🖌','🖍','📓','📔','📒','📕','📗','📘','📙','📚','📖','🔖','🏷','💰','🪙','💵','💳','🧾','✉️','📧','📨','📩','📤','📥','📦','📫','📪','📬','📭','📮','🗳','📥','🗂','🗃','📁','📂','📊','📈','📉','📋','📌','📍','📎','🗓','📅','📆','🗒'] },
+  { label:'❤️ หัวใจ/สัญลักษณ์', emojis:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','❤️‍🔥','❤️‍🩹','💔','💖','💗','💓','💞','💕','💟','❣️','💝','💘','💌','💋','🫦','💯','✅','☑️','✔️','❌','❎','➕','➖','➗','✖️','♾','💲','💱','🔃','🔄','🔙','🔚','🔛','🔜','🔝','🆗','🆙','🆒','🆕','🆓','⭕','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔶','🔷','🔸','🔹','🔺','🔻','💠','🔘','🔲','🔳','⬛','⬜','◼️','◻️','◾','◽','▪️','▫️','🏁','🚩','🎌','🏴','🏳️','🌈'] },
+  { label:'⭐ ดาว/ไฟ', emojis:['⭐','🌟','💫','✨','🌠','☄️','🌌','🔥','💥','❄️','🌊','🌀','🌈','☀️','🌤','🌦','🌧','⛈','🌩','❄️','🌪','🌫','🌬','🌂','☔','⚡','🌙','🌛','🌜','🌝','🌞','🪐','💧','💦','🫧','🌊','⛄','☃️','🔆','🔅','💡','🕯','🪔','🔦','🏮','🪩','🪄','🎆','🎇','🧨','🎑'] },
 ];
 
 let _emojiTargetId = 'sEmoji';
@@ -2294,12 +2307,14 @@ let _emojiSelected = [];
 let _currentCat = 0;
 
 function openEmojiPicker(targetId, displayId){
-  _emojiTargetId = targetId;
-  _emojiDisplayId = displayId;
-  const cur = $(_emojiTargetId)?.value || '📦';
-  _emojiSelected = [...cur].filter(c=>c.trim());
-  renderEmojiPicker();
-  $('emojiPickerModal').style.display = 'flex';
+  try {
+    _emojiTargetId = targetId;
+    _emojiDisplayId = displayId;
+    const cur = document.getElementById(_emojiTargetId)?.value || '📦';
+    _emojiSelected = [...cur].filter(c=>c.trim()!=='');
+    renderEmojiPicker();
+    document.getElementById('emojiPickerModal').style.display = 'flex';
+  } catch(e){ console.error('openEmojiPicker error:',e); alert('error: '+e.message); }
 }
 
 function closeEmojiPicker(){
