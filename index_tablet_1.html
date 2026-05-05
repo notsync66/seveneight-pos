@@ -9,47 +9,130 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#0d1117;--card:#161b22;--card2:#21262d;--border:#30363d;
+  --bg:#141414;--card:rgba(36,36,36,.62);--card2:rgba(54,54,54,.45);--border:rgba(255,255,255,.14);
   --accent:#58a6ff;--green:#3fb950;--red:#f85149;--yellow:#d29922;
-  --text:#e6edf3;--muted:#8b949e;--r:16px;
+  --text:#f2f2f2;--muted:#b6b6b6;--r:12px;
+  --glass-shadow:0 8px 26px rgba(0,0,0,.35);
 }
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:80px}
+body{
+  font-family:'Sarabun',sans-serif;
+  background:
+    radial-gradient(circle at 15% -10%, #2c2c2c 0%, rgba(44,44,44,0) 42%),
+    radial-gradient(circle at 90% 0%, #252525 0%, rgba(37,37,37,0) 38%),
+    linear-gradient(160deg, #131313 0%, #1b1b1b 48%, #0f0f0f 100%);
+  color:var(--text);min-height:100dvh;padding-bottom:80px
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 55% at 20% 12%, rgba(255,255,255,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 45% at 82% 84%, rgba(88,166,255,.10) 0%, transparent 58%);
+  opacity:.55;
+}
 button,input{font-family:'Sarabun',sans-serif}
 .screen{display:none;padding:0 16px 40px;max-width:480px;margin:0 auto}
 .screen.active{display:block}
-#topbar{background:var(--card);border-bottom:1px solid var(--border);padding:13px 16px;
-  display:none;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+#topbar{
+  background:linear-gradient(180deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.04) 45%, rgba(0,0,0,.08) 100%);
+  border-bottom:1px solid var(--border);padding:13px 16px;
+  box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 6px 20px rgba(0,0,0,.35);
+  display:none;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100
+}
 #topbar h1{font-size:17px;font-weight:800}
 .date-badge{font-size:12px;color:var(--muted);background:var(--card2);padding:4px 10px;border-radius:20px;border:1px solid var(--border)}
-#tabs{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--card);border-top:1px solid var(--border);flex-direction:row;padding:0;max-width:100%;margin:0;padding-bottom:env(safe-area-inset-bottom)}
-.tab{flex:1;background:none;border:none;border-radius:0;padding:10px 4px 14px;font-size:10px;font-weight:700;color:var(--muted);transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+#tabs{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(0,0,0,.28) 100%);border-top:1px solid var(--border);flex-direction:row;padding:0;max-width:100%;margin:0;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 22px rgba(0,0,0,.38),0 1px 0 rgba(255,255,255,.06) inset}
+.tab{flex:1;background:none;border:none;border-radius:0;padding:10px 4px 14px;font-size:10px;font-weight:700;color:var(--muted);transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;position:relative;overflow:hidden}
 .tab .tab-icon{font-size:22px;line-height:1}
 .tab .tab-icon-wrap{font-size:22px}
 .tab.active{color:var(--accent)}
+.tab::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .18s}
+.tab.active::after{opacity:1}
 .lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:18px 0 8px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
-.btn{width:100%;border:none;border-radius:14px;padding:15px;font-size:17px;font-weight:800;margin-top:10px;cursor:pointer;transition:opacity .15s,transform .1s}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:var(--glass-shadow);backdrop-filter:blur(14px) saturate(110%);-webkit-backdrop-filter:blur(14px) saturate(110%);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.34),transparent)}
+.btn{width:100%;border:none;border-radius:10px;padding:15px;font-size:17px;font-weight:800;margin-top:10px;cursor:pointer;transition:opacity .15s,transform .1s,box-shadow .18s;position:relative;overflow:hidden}
+.btn::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.22),transparent);pointer-events:none}
 .btn:active{transform:scale(.97);opacity:.85}
-.btn-accent{background:var(--accent);color:#000}
-.btn-green{background:var(--green);color:#000}
-.btn-yellow{background:var(--yellow);color:#000}
-.btn-outline{background:var(--card2);color:var(--text);border:1px solid var(--border);font-size:15px}
+.btn-accent{background:linear-gradient(135deg,#7ec0ff,#3b92ff);color:#08111d;box-shadow:0 8px 20px rgba(88,166,255,.30)}
+.btn-green{background:linear-gradient(135deg,#6ed97b,#33aa45);color:#051108;box-shadow:0 8px 20px rgba(63,185,80,.26)}
+.btn-yellow{background:linear-gradient(135deg,#f0c55a,#cf981f);color:#2b1b00;box-shadow:0 8px 20px rgba(210,153,34,.24)}
+.btn-outline{background:var(--card2);color:var(--text);border:1px solid var(--border);font-size:15px;backdrop-filter:blur(10px)}
+.pay-method-btn{
+  width:100%;
+  border-radius:10px;
+  padding:15px 0;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+  border:1px solid var(--border);
+  color:var(--text);
+  position:relative;
+  overflow:hidden;
+  -webkit-backdrop-filter:blur(12px) saturate(120%);
+  backdrop-filter:blur(12px) saturate(120%);
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 8px 18px rgba(0,0,0,.28);
+}
+.pay-method-btn::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,.2),transparent);
+  pointer-events:none;
+}
+.pay-method-btn.cash{background:linear-gradient(180deg,rgba(63,185,80,.33),rgba(63,185,80,.18));border-color:rgba(63,185,80,.5)}
+.pay-method-btn.xfer{background:linear-gradient(180deg,rgba(88,166,255,.35),rgba(88,166,255,.2));border-color:rgba(88,166,255,.55)}
+.pay-method-btn.mix{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));font-size:15px}
+.hist-top-btn{
+  background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04));
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  padding:6px 14px;
+  box-shadow:0 1px 0 rgba(255,255,255,.1) inset;
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+}
+.hist-top-btn.danger{
+  color:var(--red);
+  border-color:rgba(248,81,73,.6);
+  background:linear-gradient(180deg,rgba(248,81,73,.16),rgba(248,81,73,.06));
+}
+.emoji-sheet{
+  background:var(--card);
+  border-top:1px solid var(--border);
+  border-left:1px solid var(--border);
+  border-right:1px solid var(--border);
+  border-radius:14px 14px 0 0;
+  box-shadow:0 -10px 30px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.1) inset;
+  -webkit-backdrop-filter:blur(16px) saturate(120%);
+  backdrop-filter:blur(16px) saturate(120%);
+}
+.emoji-preview{
+  background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.03));
+  border:1px solid var(--border);
+  border-radius:10px;
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset;
+}
 .prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.prod-card{background:var(--card);border:2px solid var(--border);border-radius:var(--r);padding:14px 10px;text-align:center;position:relative;user-select:none;transition:border-color .15s,background .15s}
+.prod-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;position:relative;user-select:none;transition:border-color .15s,background .15s,transform .12s,box-shadow .2s;box-shadow:var(--glass-shadow);backdrop-filter:blur(12px) saturate(110%);-webkit-backdrop-filter:blur(12px) saturate(110%);overflow:visible}
+.prod-card::before{content:'';position:absolute;top:0;left:0;right:0;height:42%;background:linear-gradient(180deg,rgba(255,255,255,.14),transparent);pointer-events:none}
 .prod-card:active{transform:scale(.95)}
-.prod-card.in-cart{border-color:var(--accent);background:#1a2535}
+.prod-card.in-cart{border-color:rgba(88,166,255,.65);background:rgba(52,96,148,.35);box-shadow:0 10px 24px rgba(40,86,140,.35)}
 /* ขยายวงกลมตัวเลข 24→34px */
-.prod-badge{position:absolute;top:-11px;right:-11px;background:var(--accent);color:#000;font-weight:800;font-size:15px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px #0006}
-.cart-row{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:10px;padding:8px 12px;margin-bottom:6px}
-.qty-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.prod-badge{position:absolute;top:-11px;right:-11px;background:linear-gradient(135deg,#8ec6ff,#58a6ff);color:#04101f;font-weight:800;font-size:15px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px rgba(88,166,255,.35)}
+.cart-row{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:9px;padding:8px 12px;margin-bottom:6px;border:1px solid var(--border)}
+.qty-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:rgba(110,110,110,.45);color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .sum-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
 .sum-row:last-child{border-bottom:none}
 .shift-btns{display:flex;gap:8px;margin-bottom:4px}
-.shift-btn{flex:1;padding:12px 0;border-radius:12px;border:2px solid var(--border);background:var(--card2);color:var(--muted);font-weight:700;font-size:16px;cursor:pointer;transition:.15s}
-.shift-btn.on{border-color:var(--accent);background:#1a2535;color:var(--accent)}
+.shift-btn{flex:1;padding:12px 0;border-radius:9px;border:1px solid var(--border);background:var(--card2);color:var(--muted);font-weight:700;font-size:16px;cursor:pointer;transition:.15s;backdrop-filter:blur(8px)}
+.shift-btn.on{border-color:rgba(88,166,255,.7);background:rgba(58,102,156,.45);color:#d7ebff}
 .qr-box{width:200px;height:200px;margin:0 auto 14px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;border:2px dashed var(--border);background:var(--card2)}
 .qr-box img{width:100%;height:100%;object-fit:contain}
-#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--green);color:#000;font-weight:700;font-size:14px;padding:11px 22px;border-radius:30px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:9999;white-space:nowrap}
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);background:linear-gradient(135deg,#63d572,#3fb950);color:#041106;font-weight:700;font-size:14px;padding:11px 22px;border-radius:14px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 10px 25px rgba(63,185,80,.28)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:var(--green);color:#000;font-size:24px;font-weight:800;padding:20px 36px;border-radius:20px;z-index:999;box-shadow:0 8px 40px #0009;transition:transform .15s,opacity .3s;opacity:0;pointer-events:none}
 #flash.show{transform:translate(-50%,-50%) scale(1);opacity:1}
@@ -227,8 +310,8 @@ button,input{font-family:'Sarabun',sans-serif}
 .wage-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
 .wage-row:last-of-type{border-bottom:none}
 .wage-opt{display:flex;gap:8px;margin:10px 0}
-.wage-opt button{flex:1;padding:12px 6px;border-radius:12px;border:2px solid var(--border);background:var(--card2);color:var(--muted);font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
-.wage-opt button.on{border-color:var(--accent);background:#1a2535;color:var(--accent)}
+.wage-opt button{flex:1;padding:12px 6px;border-radius:10px;border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.03));color:var(--muted);font-weight:700;font-size:13px;cursor:pointer;transition:.15s;box-shadow:0 1px 0 rgba(255,255,255,.09) inset;backdrop-filter:blur(10px)}
+.wage-opt button.on{border-color:rgba(88,166,255,.7);background:linear-gradient(180deg,rgba(88,166,255,.24),rgba(88,166,255,.1));color:var(--accent)}
 
 .tab-icon-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
 .cart-tab-badge{position:absolute;top:-7px;right:-12px;background:var(--red);color:#fff;font-weight:800;font-size:10px;min-width:17px;height:17px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 3px;box-shadow:0 1px 4px #0006;line-height:1}
@@ -239,6 +322,17 @@ button,input{font-family:'Sarabun',sans-serif}
 #confirmBox{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px 20px;width:100%;max-width:360px;text-align:center}
 #confirmBox h3{font-size:18px;font-weight:800;margin-bottom:8px}
 #confirmBox p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+
+#topbar,#tabs,#numpad-box,#wageBox{
+  backdrop-filter:blur(14px) saturate(110%);
+  -webkit-backdrop-filter:blur(14px) saturate(110%);
+  box-shadow:var(--glass-shadow);
+}
+
+/* ลดความโค้งโดยรวม (รวม inline styles) แต่คงความกลมที่ตั้งใจไว้ */
+[style*="border-radius"]:not([style*="50%"]):not([style*="999"]) {
+  border-radius: 10px !important;
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <!-- Firebase -->
@@ -365,9 +459,9 @@ button,input{font-family:'Sarabun',sans-serif}
         </div>
       </div>
       <div id="payBtnsEl" style="display:none;flex-direction:column;gap:8px;margin-top:10px">
-        <button onclick="openPay('cash')" style="width:100%;background:var(--green);color:#000;border:none;border-radius:14px;padding:16px 0;font-size:17px;font-weight:800;cursor:pointer">💵 เงินสด</button>
-        <button onclick="openPay('xfer')" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:14px;padding:16px 0;font-size:17px;font-weight:800;cursor:pointer">📲 โอน</button>
-        <button onclick="openPay('mix')" style="width:100%;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:14px 0;font-size:15px;font-weight:700;cursor:pointer">🔀 ผสม</button>
+        <button onclick="openPay('cash')" class="pay-method-btn cash">💵 เงินสด</button>
+        <button onclick="openPay('xfer')" class="pay-method-btn xfer">📲 โอน</button>
+        <button onclick="openPay('mix')" class="pay-method-btn mix">🔀 ผสม</button>
       </div>
     </div>
 
@@ -392,9 +486,9 @@ button,input{font-family:'Sarabun',sans-serif}
       </div>
     </div>
     <div id="payBtnsEl2" style="display:none;flex-direction:column;gap:8px;margin-top:10px">
-      <button onclick="openPay('cash')" style="width:100%;background:var(--green);color:#000;border:none;border-radius:14px;padding:16px 0;font-size:17px;font-weight:800;cursor:pointer">💵 เงินสด</button>
-      <button onclick="openPay('xfer')" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:14px;padding:16px 0;font-size:17px;font-weight:800;cursor:pointer">📲 โอน</button>
-      <button onclick="openPay('mix')" style="width:100%;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:14px;padding:14px 0;font-size:15px;font-weight:700;cursor:pointer">🔀 ผสม</button>
+      <button onclick="openPay('cash')" class="pay-method-btn cash">💵 เงินสด</button>
+      <button onclick="openPay('xfer')" class="pay-method-btn xfer">📲 โอน</button>
+      <button onclick="openPay('mix')" class="pay-method-btn mix">🔀 ผสม</button>
     </div>
   </div>
 </div>
@@ -602,9 +696,9 @@ button,input{font-family:'Sarabun',sans-serif}
 <!-- HISTORY DETAIL -->
 <div id="histDetailScreen" class="screen">
   <div style="padding:14px 0 4px;display:flex;align-items:center;gap:10px">
-    <button onclick="goTab('history')" style="background:none;border:none;color:var(--accent);font-size:15px;cursor:pointer;padding:0">← กลับ</button>
+    <button onclick="goTab('history')" class="hist-top-btn" style="color:var(--accent)">← กลับ</button>
     <div style="font-size:18px;font-weight:800;flex:1">รายละเอียดกะ</div>
-    <button onclick="deleteHistEntry()" style="background:none;border:1px solid var(--red);color:var(--red);border-radius:10px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer">🗑 ลบ</button>
+    <button onclick="deleteHistEntry()" class="hist-top-btn danger">🗑 ลบ</button>
   </div>
   <div id="histDetailContent"></div>
 </div>
@@ -720,13 +814,81 @@ const DEF = [
 const TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const SHORT={'สตรอเบอรี่':'สตอ','แอปเปิ้ล':'แอป'};
 
-let prods = JSON.parse(localStorage.getItem('prods')||'null')||DEF;
+const STORE_KEYS = {
+  prods: 'prods',
+  session: 'session',
+  sessionBackup: 'sessionBackup',
+  shiftHistory: 'shiftHistory',
+  qrURL: 'qrURL',
+  ppPhone: 'ppPhone',
+};
+
+function readJSON(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    if(raw==null || raw==='') return fallback;
+    return JSON.parse(raw);
+  }catch(e){
+    return fallback;
+  }
+}
+
+function writeJSON(key, value){
+  try{
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  }catch(e){
+    showToast('⚠️ พื้นที่เก็บข้อมูลใกล้เต็ม');
+    return false;
+  }
+}
+
+function writeText(key, value){
+  try{
+    localStorage.setItem(key, value);
+    return true;
+  }catch(e){
+    showToast('⚠️ บันทึกข้อมูลไม่สำเร็จ');
+    return false;
+  }
+}
+
+function removeKey(key){
+  try{ localStorage.removeItem(key); }catch(e){}
+}
+
+function cleanText(v, maxLen=80){
+  return String(v||'')
+    .replace(/[\u0000-\u001F\u007F]/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/[<>]/g, '')
+    .trim()
+    .slice(0, maxLen);
+}
+
+function escapeHTML(v){
+  return String(v||'')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+let prods = readJSON(STORE_KEYS.prods, null)||DEF;
 let txLog = []; // [{id, time, items:[{id,qty,price}], cashAmt, xferAmt, total}]
 let startDate = null; // locked date string when shift started
 let stock={}, sold={}, cart={};
-let cashT=0, xferT=0, shiftN='เช้า', qrURL=localStorage.getItem('qrURL')||'';
-let ppPhone = localStorage.getItem('ppPhone')||''; // เบอร์พร้อมเพย์
+let cashT=0, xferT=0, shiftN='เช้า', qrURL=localStorage.getItem(STORE_KEYS.qrURL)||'';
+let ppPhone = localStorage.getItem(STORE_KEYS.ppPhone)||''; // เบอร์พร้อมเพย์
 let payTotal=0;
+
+prods = prods.map(p=>({
+  ...p,
+  name: cleanText(p.name, 40) || 'สินค้า',
+  emoji: cleanText(p.emoji, 6) || '📦',
+  price: Math.max(1, parseInt(p.price)||1),
+}));
 
 const $ = id => document.getElementById(id);
 const today = () => { const d=startDate?new Date(startDate):new Date(); return `${d.getDate()} ${TM[d.getMonth()]} ${d.getFullYear()+543}`; };
@@ -787,10 +949,10 @@ function showScreen(id){
 function loadQR(inp){
   const f=inp.files[0]; if(!f) return;
   const r=new FileReader();
-  r.onload=e=>{ qrURL=e.target.result; localStorage.setItem('qrURL',qrURL); renderSetupQR(); };
+  r.onload=e=>{ qrURL=e.target.result; writeText(STORE_KEYS.qrURL, qrURL); renderSetupQR(); };
   r.readAsDataURL(f);
 }
-function removeQR(){ qrURL=''; localStorage.removeItem('qrURL'); renderSetupQR(); }
+function removeQR(){ qrURL=''; removeKey(STORE_KEYS.qrURL); renderSetupQR(); }
 function renderSetupQR(){
   // update phone display
   const disp=$('ppPhoneDisplay');
@@ -830,7 +992,7 @@ function savePpPhone(){
   if(!val){ err.textContent='⚠️ กรุณาใส่เบอร์'; err.style.display='block'; return; }
   if(val.length!==10){ err.textContent='⚠️ ต้องครบ 10 หลัก'; err.style.display='block'; return; }
   if(!/^0[689]\d{8}$/.test(val)){ err.textContent='⚠️ เบอร์ต้องขึ้นต้นด้วย 06, 08 หรือ 09'; err.style.display='block'; return; }
-  ppPhone=val; localStorage.setItem('ppPhone',val);
+  ppPhone=val; writeText(STORE_KEYS.ppPhone, val);
   err.style.display='none';
   togglePhoneEdit();
   renderSetupQR();
@@ -870,16 +1032,16 @@ function renderSetupProds(){
 }
 function setupChgPrice(id,val){
   const v=parseInt(val); if(!v||v<1) return;
-  const p=prods.find(x=>x.id===id); if(p){ p.price=v; localStorage.setItem('prods',JSON.stringify(prods)); }
+  const p=prods.find(x=>x.id===id); if(p){ p.price=v; writeJSON(STORE_KEYS.prods, prods); }
 }
 function setupRmProd(id){
-  prods=prods.filter(p=>p.id!==id); localStorage.setItem('prods',JSON.stringify(prods)); renderSetupProds();
+  prods=prods.filter(p=>p.id!==id); writeJSON(STORE_KEYS.prods, prods); renderSetupProds();
 }
 function setupAddProd(){
-  const emoji=$('sEmoji').value||'📦', name=$('sName').value.trim(), price=parseInt($('sPrice').value);
+  const emoji=$('sEmoji').value||'📦', name=cleanText($('sName').value, 40), price=parseInt($('sPrice').value);
   if(!name||!price){ showToast('ใส่ชื่อและราคาด้วยนะ'); return; }
   prods.push({id:uid(),name,emoji,price,color:'#888',group:'other'});
-  localStorage.setItem('prods',JSON.stringify(prods));
+  writeJSON(STORE_KEYS.prods, prods);
   $('sName').value=''; $('sPrice').value='';
   $('sEmoji').value='📦'; $('sEmojiDisplay').textContent='📦';
   renderSetupProds();
@@ -892,7 +1054,7 @@ function startClock(){
 function startShift(){
   // save phone if entered and valid
   const ph = ($('ppPhone')?$('ppPhone').value||'':'').replace(/[^0-9]/g,'');
-  if(ph.length===10 && /^0[689]/.test(ph)){ ppPhone=ph; localStorage.setItem('ppPhone',ph); }
+  if(ph.length===10 && /^0[689]/.test(ph)){ ppPhone=ph; writeText(STORE_KEYS.ppPhone, ph); }
   sold={}; cart={}; cashT=0; xferT=0; stock={}; txLog=[]; startDate=new Date().toISOString();
   prods.forEach(p=>sold[p.id]=0);
   startClock();
@@ -1187,7 +1349,7 @@ function epRm(id){
   tmpEditProds=tmpEditProds.filter(p=>p.id!==id); renderEditProdList();
 }
 function editProdsAdd(){
-  const emoji=$('epEmoji').value||'📦', name=$('epName').value.trim(), price=parseInt($('epPrice').value);
+  const emoji=$('epEmoji').value||'📦', name=cleanText($('epName').value, 40), price=parseInt($('epPrice').value);
   if(!name||!price){ showToast('ใส่ชื่อและราคาด้วยนะ'); return; }
   tmpEditProds.push({id:uid(),name,emoji,price,color:'#888',group:'other'});
   $('epName').value=''; $('epPrice').value=''; $('epEmoji').value='📦'; $('epEmojiDisplay').textContent='📦';
@@ -1199,7 +1361,7 @@ function saveEditProds(){
   });
   prods=tmpEditProds;
   prods.forEach(p=>{ if(sold[p.id]==null) sold[p.id]=0; });
-  localStorage.setItem('prods',JSON.stringify(prods));
+  writeJSON(STORE_KEYS.prods, prods);
   goTab('sell'); showToast('✅ บันทึกแล้ว');
 }
 
@@ -1248,7 +1410,7 @@ function renderSum(){
   if(deductLog.length > 0){
     deductSec.style.display='block';
     $('sDeductList').innerHTML = deductLog.map((d,i)=>`<div style="font-size:13px;padding:8px 0;border-bottom:1px solid var(--border);color:var(--yellow);display:flex;align-items:center;gap:8px">
-      <span style="flex:1;line-height:1.5">${d.prodEmoji} ${d.prodName} ${d.qty} ขวด — ${d.note}</span>
+      <span style="flex:1;line-height:1.5">${d.prodEmoji} ${escapeHTML(d.prodName)} ${d.qty} ขวด — ${escapeHTML(d.note)}</span>
       <button onclick="editDeduct(${i})" style="background:var(--card2);border:1.5px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px;line-height:1;flex-shrink:0">✏️</button>
       <button onclick="deleteDeduct(${i})" style="background:var(--card2);border:1.5px solid var(--red);color:var(--red);font-size:14px;font-weight:800;cursor:pointer;padding:4px 9px;border-radius:8px;line-height:1;flex-shrink:0">✕</button>
     </div>`).join('');
@@ -1367,8 +1529,9 @@ function deleteDeduct(i){
 function editDeduct(i){
   const d = deductLog[i];
   showPrompt('แก้ไขหมายเหตุ', d.note, 'บันทึก', (val)=>{
-    if(!val.trim()){ showToast('ใส่เหตุผลด้วยนะ'); return; }
-    deductLog[i].note = val.trim();
+    const note = cleanText(val, 120);
+    if(!note){ showToast('ใส่เหตุผลด้วยนะ'); return; }
+    deductLog[i].note = note;
     saveSession(); renderSum(); showToast('✅ แก้ไขแล้ว');
   });
 }
@@ -1376,7 +1539,7 @@ function closeDeductModal(){ $('deductModal').style.display = 'none'; }
 function confirmDeduct(){
   const prodId = $('deductProdSel').value;
   const qty = parseInt($('deductQty').value) || 1;
-  const note = $('deductNote').value.trim();
+  const note = cleanText($('deductNote').value, 120);
   const prod = prods.find(p=>p.id===prodId);
   if(!prod){ showToast('เลือกสินค้าก่อน'); return; }
   if(!note){ showToast('ใส่เหตุผลด้วยนะ'); return; }
@@ -1426,7 +1589,7 @@ function renderWageCard(){
   if(xferT >= wage){
     // โอนพอ — คำนวณอัตโนมัติ
     const sendXfer = xferT - wage;
-    html += `<div style="margin-top:10px;background:var(--card2);border-radius:12px;padding:12px 14px">`;
+    html += `<div style="margin-top:10px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.03));border:1px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:0 1px 0 rgba(255,255,255,.1) inset;backdrop-filter:blur(10px)">`;
     html += `<div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📤 ส่งเจ้าของร้าน</div>`;
     html += `<div class="wage-row"><span>📲 โอน</span><strong style="color:var(--accent)">${sendXfer.toLocaleString()}฿</strong></div>`;
     html += `<div class="wage-row"><span>💵 เงินสด</span><strong style="color:var(--green)">${cashT.toLocaleString()}฿</strong></div>`;
@@ -1439,7 +1602,7 @@ function renderWageCard(){
       <button id="sWageOptA" onclick="setWageOpt('A')" class="${wageOpt==='A'?'on':''}">ตัดโอนก่อน<br><span style="font-size:11px;font-weight:400">ที่เหลือหักเงินสด</span></button>
       <button id="sWageOptB" onclick="setWageOpt('B')" class="${wageOpt==='B'?'on':''}">ตัดเงินสดอย่างเดียว<br><span style="font-size:11px;font-weight:400">โอนส่งเจ้าของทั้งหมด</span></button>
     </div>`;
-    html += `<div id="sWageOptResult" style="background:var(--card2);border-radius:12px;padding:12px 14px;margin-top:6px;font-size:13px;line-height:1.9"></div>`;
+    html += `<div id="sWageOptResult" style="background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.03));border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:6px;font-size:13px;line-height:1.9;box-shadow:0 1px 0 rgba(255,255,255,.1) inset;backdrop-filter:blur(10px)"></div>`;
   }
   el.innerHTML = html;
   // render ผลลัพธ์ถ้าโอนไม่พอ
@@ -1751,7 +1914,7 @@ function npConfirm(skipClose) {
 // ── HISTORY ────────────────────────────────────────────────────
 function saveHistory(){
   try{
-    const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+    const hist=readJSON(STORE_KEYS.shiftHistory, []);
     const tb=prods.reduce((s,p)=>s+(sold[p.id]||0),0);
     const tm=cashT+xferT;
     const wage = tb >= WAGE_GOAL ? WAGE_BONUS : WAGE_BASE;
@@ -1759,11 +1922,11 @@ function saveHistory(){
     const sk=prods.filter(p=>stock[p.id]!=null).map(p=>({id:p.id,name:p.name,emoji:p.emoji,remaining:stock[p.id]}));
     hist.unshift({date:startDate||new Date().toISOString(),shiftN,cashT,xferT,totalBottles:tb,totalMoney:tm,items:si,stockEnd:sk,txLog:[...txLog],deductLog:[...deductLog],wage,wageOpt,noteLog:[...noteLog]});
     if(hist.length>60) hist.splice(60); // keep max 60 shifts
-    localStorage.setItem('shiftHistory',JSON.stringify(hist));
+    writeJSON(STORE_KEYS.shiftHistory, hist);
   }catch(e){}
 }
 function renderHistory(){
-  const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+  const hist=readJSON(STORE_KEYS.shiftHistory, []);
   const el=$('histListEl'), em=$('histEmptyEl');
 
   // ── highlight กะปัจจุบัน ──
@@ -1783,17 +1946,17 @@ function renderHistory(){
           @keyframes auS1{0%,100%{opacity:.45;transform:translateX(0)}50%{opacity:.7;transform:translateX(18px)}}
           @keyframes auS2{0%,100%{opacity:.3;transform:translateX(0)}60%{opacity:.5;transform:translateX(-12px)}}
           @keyframes auPulse{0%,100%{opacity:.6}50%{opacity:1}}
-          .au-wrap{border-radius:16px;overflow:hidden;position:relative;padding:16px 18px 15px;background:#060e1c;border:1.5px solid rgba(0,180,140,.25);margin-bottom:16px}
+          .au-wrap{border-radius:12px;overflow:hidden;position:relative;padding:16px 18px 15px;background:rgba(30,30,30,.86);border:1px solid rgba(255,255,255,.12);margin-bottom:16px}
           .au-layer{position:absolute;inset:0;pointer-events:none}
           .au-band{position:absolute;left:-5%;width:110%;border-radius:50%;mix-blend-mode:screen;filter:blur(22px)}
-          .ab1{height:55px;top:-5px;background:linear-gradient(180deg,rgba(0,200,150,.28) 0%,transparent 100%);animation:auS1 7s ease-in-out infinite}
-          .ab2{height:40px;top:5px;background:linear-gradient(180deg,rgba(60,140,255,.2) 0%,transparent 100%);animation:auS2 10s ease-in-out infinite}
-          .au-live{display:inline-flex;align-items:center;gap:5px;background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.3);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700;color:#00c896;letter-spacing:.7px}
-          .au-dot{width:6px;height:6px;border-radius:50%;background:#00c896;animation:auPulse 1.5s ease-in-out infinite}
+          .ab1{height:55px;top:-5px;background:linear-gradient(180deg,rgba(255,255,255,.1) 0%,transparent 100%);animation:auS1 7s ease-in-out infinite}
+          .ab2{height:40px;top:5px;background:linear-gradient(180deg,rgba(88,166,255,.14) 0%,transparent 100%);animation:auS2 10s ease-in-out infinite}
+          .au-live{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;color:#d5dff0;letter-spacing:.7px}
+          .au-dot{width:6px;height:6px;border-radius:50%;background:#8fbaf0;animation:auPulse 1.5s ease-in-out infinite}
           .au-c{position:relative;z-index:1}
           .au-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
-          .au-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:9px;text-align:center}
-          .au-lbl{font-size:11px;color:rgba(180,210,255,.55);margin-bottom:2px}
+          .au-stat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:9px;text-align:center}
+          .au-lbl{font-size:11px;color:rgba(230,235,245,.58);margin-bottom:2px}
           .au-val{font-size:18px;font-weight:800}
           .au-div{border:none;border-top:1px solid rgba(255,255,255,.07);margin:0 0 11px}
         </style>
@@ -1801,19 +1964,19 @@ function renderHistory(){
           <div class="au-layer"><div class="au-band ab1"></div><div class="au-band ab2"></div></div>
           <div class="au-c">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <div style="font-size:13px;color:rgba(170,205,255,.6)">📅 ${ds} · กะ${shiftN}</div>
+              <div style="font-size:13px;color:rgba(220,227,239,.62)">📅 ${ds} · กะ${shiftN}</div>
               <div class="au-live"><div class="au-dot"></div>LIVE</div>
             </div>
-            <div style="font-size:15px;font-weight:700;color:#deeeff;margin-bottom:0">ขาย ${tb} ขวด ${reached?'🎉':''}</div>
+            <div style="font-size:15px;font-weight:700;color:#e8edf7;margin-bottom:0">ขาย ${tb} ขวด ${reached?'🎉':''}</div>
             <div class="au-grid">
-              <div class="au-stat"><div class="au-lbl">รวม</div><div class="au-val" style="color:#4ecb8a">${tm.toLocaleString()}฿</div></div>
-              <div class="au-stat"><div class="au-lbl">💵 เงินสด</div><div class="au-val" style="color:#deeeff">${cashT.toLocaleString()}฿</div></div>
-              <div class="au-stat"><div class="au-lbl">📲 โอน</div><div class="au-val" style="color:#5aacf0">${xferT.toLocaleString()}฿</div></div>
+              <div class="au-stat"><div class="au-lbl">รวม</div><div class="au-val" style="color:var(--green)">${tm.toLocaleString()}฿</div></div>
+              <div class="au-stat"><div class="au-lbl">💵 เงินสด</div><div class="au-val" style="color:#eceff5">${cashT.toLocaleString()}฿</div></div>
+              <div class="au-stat"><div class="au-lbl">📲 โอน</div><div class="au-val" style="color:var(--accent)">${xferT.toLocaleString()}฿</div></div>
             </div>
             <hr class="au-div">
             <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:12px;color:rgba(170,205,255,.55)">💰 ค่าแรงที่ได้</div>
-              <div style="font-size:20px;font-weight:800;color:${reached?'#4ecb8a':'#f0c040'}">${wage.toLocaleString()}฿</div>
+              <div style="font-size:12px;color:rgba(220,227,239,.55)">💰 ค่าแรงที่ได้</div>
+              <div style="font-size:20px;font-weight:800;color:${reached?'var(--green)':'var(--yellow)'}">${wage.toLocaleString()}฿</div>
             </div>
           </div>
         </div>`;
@@ -1864,7 +2027,7 @@ let histWageOpt = 'A'; // สำหรับประวัติที่เป
 
 function openHistDetail(i){
   currentHistIdx = i;
-  const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+  const hist=readJSON(STORE_KEYS.shiftHistory, []);
   const h=hist[i]; if(!h) return;
   const d=new Date(h.date);
   const ds=`${d.getDate()} ${TM[d.getMonth()]} ${d.getFullYear()+543}`;
@@ -1904,7 +2067,7 @@ function openHistDetail(i){
       </div>
 
       <!-- ค่าแรงที่ได้ — ตัวใหญ่ -->
-      <div style="background:${reached?'#0d2b0d':'#2b1a00'};border:2px solid ${reached?'var(--green)':'var(--yellow)'};border-radius:14px;padding:18px;text-align:center;margin-bottom:14px">
+      <div style="background:${reached?'rgba(63,185,80,.16)':'rgba(210,153,34,.16)'};border:1px solid ${reached?'rgba(63,185,80,.6)':'rgba(210,153,34,.65)'};border-radius:10px;padding:18px;text-align:center;margin-bottom:14px;box-shadow:0 1px 0 rgba(255,255,255,.1) inset;backdrop-filter:blur(10px)">
         <div style="font-size:13px;color:var(--muted);margin-bottom:6px">💰 ค่าแรงที่ได้</div>
         <div style="font-size:48px;font-weight:800;color:${reached?'var(--green)':'var(--yellow)'}">${wage.toLocaleString()}฿</div>
         <div style="font-size:13px;color:var(--muted);margin-top:6px">${reached?'ได้โบนัส 400฿ เพราะขายครบ '+WAGE_GOAL+' ขวด':'ขั้นต่ำ 350฿ (ยังไม่ถึงเป้า)'}</div>
@@ -1912,18 +2075,18 @@ function openHistDetail(i){
 
       <!-- คำนวณส่งเจ้าของ — แสดงปุ่มเลือกเสมอ -->
       ${h.xferT<wage?`
-          <div id="hdWageWarning" style="background:#2b1a00;border:2px solid var(--yellow);border-radius:12px;padding:14px 16px;margin-bottom:14px;${histWageOpt==='B'?'display:none':''}">
+          <div id="hdWageWarning" style="background:rgba(210,153,34,.13);border:1px solid rgba(210,153,34,.6);border-radius:10px;padding:14px 16px;margin-bottom:14px;${histWageOpt==='B'?'display:none':''};box-shadow:0 1px 0 rgba(255,255,255,.08) inset;backdrop-filter:blur(10px)">
             <div style="font-size:16px;color:var(--yellow);font-weight:800;margin-bottom:4px">⚠️ โอนไม่พอค่าแรง</div>
             <div style="font-size:14px;color:var(--muted)">โอนมีแค่ <strong style="color:var(--accent)">${h.xferT.toLocaleString()}฿</strong> &nbsp;|&nbsp; ขาด <strong style="color:var(--red)">${(wage-h.xferT).toLocaleString()}฿</strong></div>
           </div>`:''}
       <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">เลือกวิธีหักค่าแรง</div>
       <div style="display:flex;gap:8px;margin-bottom:14px">
         <button id="hdOptB" onclick="setHistWageOpt('B',${i})"
-          style="flex:1;padding:13px 6px;border-radius:12px;border:2px solid;font-weight:700;font-size:14px;cursor:pointer;transition:.15s;line-height:1.5;${histWageOpt==='B'?'border-color:var(--green);background:#1a2d1a;color:var(--green)':'border-color:var(--border);background:var(--card2);color:var(--muted)'}">
+          style="flex:1;padding:13px 6px;border-radius:10px;border:1px solid;font-weight:700;font-size:14px;cursor:pointer;transition:.15s;line-height:1.5;box-shadow:0 1px 0 rgba(255,255,255,.08) inset;${histWageOpt==='B'?'border-color:rgba(63,185,80,.6);background:rgba(63,185,80,.16);color:var(--green)':'border-color:var(--border);background:var(--card2);color:var(--muted)'}">
           ตัดเงินสดอย่างเดียว<br><span style="font-size:11px;font-weight:400;opacity:.8">โอนส่งเจ้าของทั้งหมด</span>
         </button>
         <button id="hdOptA" onclick="setHistWageOpt('A',${i})"
-          style="flex:1;padding:13px 6px;border-radius:12px;border:2px solid;font-weight:700;font-size:14px;cursor:pointer;transition:.15s;line-height:1.5;${histWageOpt==='A'?'border-color:var(--accent);background:#1a2535;color:var(--accent)':'border-color:var(--border);background:var(--card2);color:var(--muted)'}">
+          style="flex:1;padding:13px 6px;border-radius:10px;border:1px solid;font-weight:700;font-size:14px;cursor:pointer;transition:.15s;line-height:1.5;box-shadow:0 1px 0 rgba(255,255,255,.08) inset;${histWageOpt==='A'?'border-color:rgba(88,166,255,.65);background:rgba(88,166,255,.16);color:var(--accent)':'border-color:var(--border);background:var(--card2);color:var(--muted)'}">
           ตัดโอนก่อน<br><span style="font-size:11px;font-weight:400;opacity:.8">ที่เหลือหักเงินสด</span>
         </button>
       </div>
@@ -1938,9 +2101,9 @@ function openHistDetail(i){
     ${h.stockEnd&&h.stockEnd.length?`<div class="lbl">📋 ของเหลือปลายกะ</div>
     <div class="card">${h.stockEnd.map(s=>`<div class="sum-row"><span>${s.emoji} ${s.name}</span><span style="font-weight:700">${s.remaining} ขวด</span></div>`).join('')}</div>`:''}
     ${h.deductLog&&h.deductLog.length?`<div class="lbl">📦 หักสต็อกพิเศษ</div>
-    <div class="card" style="border-color:var(--yellow)">${h.deductLog.map(d=>`<div style="font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);color:var(--yellow)">${d.prodEmoji} ${d.prodName} ${d.qty} ขวด — ${d.note}</div>`).join('')}</div>`:''}
+    <div class="card" style="border-color:var(--yellow)">${h.deductLog.map(d=>`<div style="font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);color:var(--yellow)">${d.prodEmoji} ${escapeHTML(d.prodName)} ${d.qty} ขวด — ${escapeHTML(d.note)}</div>`).join('')}</div>`:''}
     ${h.noteLog&&h.noteLog.length?`<div class="lbl">📝 Note</div>
-    <div class="card" style="border-color:var(--border)">${h.noteLog.map(n=>`<div style="font-size:14px;color:var(--text);padding:4px 0;line-height:1.6">-${n.text}</div>`).join('')}</div>`:
+    <div class="card" style="border-color:var(--border)">${h.noteLog.map(n=>`<div style="font-size:14px;color:var(--text);padding:4px 0;line-height:1.6">-${escapeHTML(n.text)}</div>`).join('')}</div>`:
     h.shiftNote?`<div class="lbl">📝 Note</div>
     <div class="card" style="border-color:var(--border)"><div style="font-size:14px;color:var(--text);line-height:1.7;white-space:pre-wrap">${h.shiftNote}</div></div>`:''}
   `;
@@ -1954,16 +2117,16 @@ function setHistWageOpt(opt, histIdx){
   // update button styles
   const a = document.getElementById('hdOptA');
   const b = document.getElementById('hdOptB');
-  if(a){ a.style.borderColor=opt==='A'?'var(--accent)':'var(--border)'; a.style.background=opt==='A'?'#1a2535':'var(--card2)'; a.style.color=opt==='A'?'var(--accent)':'var(--muted)'; }
-  if(b){ b.style.borderColor=opt==='B'?'var(--green)':'var(--border)'; b.style.background=opt==='B'?'#1a2d1a':'var(--card2)'; b.style.color=opt==='B'?'var(--green)':'var(--muted)'; }
+  if(a){ a.style.borderColor=opt==='A'?'rgba(88,166,255,.65)':'var(--border)'; a.style.background=opt==='A'?'rgba(88,166,255,.16)':'var(--card2)'; a.style.color=opt==='A'?'var(--accent)':'var(--muted)'; }
+  if(b){ b.style.borderColor=opt==='B'?'rgba(63,185,80,.6)':'var(--border)'; b.style.background=opt==='B'?'rgba(63,185,80,.16)':'var(--card2)'; b.style.color=opt==='B'?'var(--green)':'var(--muted)'; }
   const warn=document.getElementById('hdWageWarning'); if(warn) warn.style.display=opt==='B'?'none':'block';
   // save to history
   try{
-    const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+    const hist=readJSON(STORE_KEYS.shiftHistory, []);
     if(hist[histIdx]) hist[histIdx].wageOpt=opt;
-    localStorage.setItem('shiftHistory',JSON.stringify(hist));
+    writeJSON(STORE_KEYS.shiftHistory, hist);
   }catch(e){}
-  const hist2=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+  const hist2=readJSON(STORE_KEYS.shiftHistory, []);
   const h=hist2[histIdx]; if(!h) return;
   const wage=h.wage!=null?h.wage:(h.totalBottles>=WAGE_GOAL?WAGE_BONUS:WAGE_BASE);
   renderHistWageResult(h, wage);
@@ -1981,20 +2144,20 @@ function renderHistWageResult(h, wage){
     xferSend=h.xferT;
   }
   el.innerHTML=`
-    <div style="background:#1a2d1a;border:2px solid var(--green);border-radius:14px;padding:16px;text-align:center">
+    <div style="background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.62);border-radius:10px;padding:16px;text-align:center;box-shadow:0 1px 0 rgba(255,255,255,.1) inset;backdrop-filter:blur(10px)">
       <div style="font-size:13px;color:var(--muted);margin-bottom:6px">💵 เงินสด</div>
       <div style="font-size:32px;font-weight:800;color:var(--green)">${cashSend.toLocaleString()}฿</div>
     </div>
-    <div style="background:#1a2535;border:2px solid var(--accent);border-radius:14px;padding:16px;text-align:center">
+    <div style="background:rgba(88,166,255,.15);border:1px solid rgba(88,166,255,.65);border-radius:10px;padding:16px;text-align:center;box-shadow:0 1px 0 rgba(255,255,255,.1) inset;backdrop-filter:blur(10px)">
       <div style="font-size:13px;color:var(--muted);margin-bottom:6px">📲 โอน</div>
       <div style="font-size:32px;font-weight:800;color:var(--accent)">${xferSend.toLocaleString()}฿</div>
     </div>`;
 }
 function deleteHistEntry(){
   showConfirm('ลบประวัติกะนี้?','การลบไม่สามารถย้อนกลับได้','🗑 ลบเลย', ()=>{
-    const hist=JSON.parse(localStorage.getItem('shiftHistory')||'[]');
+    const hist=readJSON(STORE_KEYS.shiftHistory, []);
     hist.splice(currentHistIdx, 1);
-    localStorage.setItem('shiftHistory', JSON.stringify(hist));
+    writeJSON(STORE_KEYS.shiftHistory, hist);
     showToast('🗑 ลบแล้ว');
     goTab('history');
   });
@@ -2017,14 +2180,14 @@ function renderNoteList(){
   const el=$('sNoteList'); if(!el) return;
   if(!noteLog.length){ el.innerHTML=''; return; }
   el.innerHTML=noteLog.map((n,i)=>`<div style="font-size:13px;padding:7px 0;border-bottom:1px solid var(--border);color:var(--text);display:flex;align-items:center;gap:8px">
-    <span style="flex:1;line-height:1.5">-${n.text}</span>
+    <span style="flex:1;line-height:1.5">-${escapeHTML(n.text)}</span>
     <button onclick="editNote(${i})" style="background:var(--card2);border:1.5px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px;flex-shrink:0">✏️</button>
     <button onclick="deleteNote(${i})" style="background:var(--card2);border:1.5px solid var(--red);color:var(--red);font-size:14px;font-weight:800;cursor:pointer;padding:4px 9px;border-radius:8px;flex-shrink:0">✕</button>
   </div>`).join('');
 }
 function addNote(){
   const inp=$('sNoteInput'); if(!inp) return;
-  const txt=inp.value.trim();
+  const txt=cleanText(inp.value, 120);
   if(!txt){ showToast('พิมอะไรก่อนนะ'); return; }
   noteLog.push({text:txt});
   inp.value='';
@@ -2033,8 +2196,9 @@ function addNote(){
 }
 function editNote(i){
   showPrompt('แก้ไข note', noteLog[i].text, 'บันทึก', (val)=>{
-    if(!val.trim()){ showToast('ใส่ข้อความด้วยนะ'); return; }
-    noteLog[i].text=val.trim();
+    const next=cleanText(val, 120);
+    if(!next){ showToast('ใส่ข้อความด้วยนะ'); return; }
+    noteLog[i].text=next;
     saveSession(); renderNoteList();
   });
 }
@@ -2074,11 +2238,12 @@ function showPrompt(title, defaultVal, okLabel, onOk){
 
 // ── COPY STOCK ─────────────────────────────────────────────────
 function copyStock(){
-  const lines = prods
-    .filter(p => stock[p.id] != null && stock[p.id] > 0)
-    .map(p => `${p.emoji} ${p.name}: ${stock[p.id]} ขวด`);
-  if(!lines.length){ showToast('ยังไม่มีสต็อก'); return; }
-  const txt = `📦 ของเหลือในถัง\n` + lines.join('\n');
+  const sk = prods.filter(p => stock[p.id] != null);
+  if(!sk.length){ showToast('ยังไม่มีสต็อก'); return; }
+  const tl = sk.reduce((s,p) => s + stock[p.id], 0);
+  let txt = `เหลือในถัง: ${tl} ขวด\n`;
+  sk.forEach(p => { txt += `${p.name} ${stock[p.id]}\n`; });
+  txt = txt.trimEnd();
   navigator.clipboard.writeText(txt).then(()=>showToast('📋 Copy แล้ว!')).catch(()=>showToast('❌ Copy ไม่ได้'));
 }
 
@@ -2088,9 +2253,9 @@ function exportData(){
     v: 2,
     exported: new Date().toISOString(),
     prods: prods,
-    shiftHistory: JSON.parse(localStorage.getItem('shiftHistory')||'[]'),
+    shiftHistory: readJSON(STORE_KEYS.shiftHistory, []),
     ppPhone: ppPhone,
-    session: JSON.parse(localStorage.getItem('session')||'null'),
+    session: readJSON(STORE_KEYS.session, null),
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -2115,10 +2280,10 @@ function importData(){
         const data = JSON.parse(ev.target.result);
         if(!data.v || !data.shiftHistory){ showToast('❌ ไฟล์ไม่ถูกต้อง'); return; }
         showConfirm('Import ข้อมูล?', `จะทับข้อมูลในเครื่องทั้งหมด\nExport จาก: ${data.exported||'ไม่ทราบ'}`, '📥 Import เลย', ()=>{
-          if(data.prods){ prods = data.prods; localStorage.setItem('prods', JSON.stringify(prods)); }
-          if(data.shiftHistory) localStorage.setItem('shiftHistory', JSON.stringify(data.shiftHistory));
-          if(data.ppPhone){ ppPhone = data.ppPhone; localStorage.setItem('ppPhone', ppPhone); }
-          if(data.session){ localStorage.setItem('session', JSON.stringify(data.session)); }
+          if(data.prods){ prods = data.prods.map(p=>({ ...p, name:cleanText(p.name, 40) })); writeJSON(STORE_KEYS.prods, prods); }
+          if(data.shiftHistory) writeJSON(STORE_KEYS.shiftHistory, data.shiftHistory);
+          if(data.ppPhone){ ppPhone = String(data.ppPhone).replace(/[^0-9]/g,'').slice(0,10); writeText(STORE_KEYS.ppPhone, ppPhone); }
+          if(data.session) writeJSON(STORE_KEYS.session, data.session);
           showToast('✅ Import สำเร็จ! กำลัง reload…');
           setTimeout(()=>location.reload(), 1200);
         }, 'var(--accent)');
@@ -2140,16 +2305,18 @@ renderSetupQR();
 // ── SESSION SAVE/RESTORE ──────────────────────────────────────
 function saveSession(){
   try{
-    localStorage.setItem('session',JSON.stringify({
+    const payload={
       active:true, sold, cart, cashT, xferT, shiftN, stock, txLog, startDate, origStock:window._origStock||{}, deductLog, noteLog,
       dateLabel:'📅 '+today()+' · กะ'+shiftN
-    }));
+    };
+    writeJSON(STORE_KEYS.session, payload);
+    writeJSON(STORE_KEYS.sessionBackup, { ...payload, _backupAt:new Date().toISOString() });
   }catch(e){}
 }
-function clearSession(){ localStorage.removeItem('session'); }
+function clearSession(){ removeKey(STORE_KEYS.session); removeKey(STORE_KEYS.sessionBackup); }
 function restoreSession(){
   try{
-    const s=JSON.parse(localStorage.getItem('session'));
+    const s=readJSON(STORE_KEYS.session, null) || readJSON(STORE_KEYS.sessionBackup, null);
     if(!s||!s.active) return false;
     sold=s.sold||{}; cart=s.cart||{}; cashT=s.cashT||0;
     xferT=s.xferT||0; shiftN=s.shiftN||'เช้า'; stock=s.stock||{}; txLog=s.txLog||[]; startDate=s.startDate||null;
@@ -2168,6 +2335,9 @@ function restoreSession(){
 }
 
 if(!restoreSession()){ showScreen('setupScreen'); }
+setInterval(()=>{ if(startDate) saveSession(); }, 15000);
+window.addEventListener('beforeunload', ()=>{ if(startDate) saveSession(); });
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden' && startDate) saveSession(); });
 </script>
 
 <!-- DEDUCT STOCK MODAL -->
@@ -2255,7 +2425,7 @@ if(!restoreSession()){ showScreen('setupScreen'); }
 
 <!-- EMOJI PICKER MODAL -->
 <div id="emojiPickerModal" style="display:none;position:fixed;inset:0;background:#000a;z-index:10001;align-items:flex-end;justify-content:center">
-  <div style="background:var(--card);border-top:2px solid var(--border);border-radius:20px 20px 0 0;padding:20px 16px 36px;width:100%;max-width:500px;animation:slide-up .2s ease-out both">
+  <div class="emoji-sheet" style="padding:20px 16px 36px;width:100%;max-width:500px;animation:slide-up .2s ease-out both">
 
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
       <div style="font-size:15px;font-weight:800">เลือกอิโมจิ</div>
@@ -2264,7 +2434,7 @@ if(!restoreSession()){ showScreen('setupScreen'); }
     <div style="font-size:12px;color:var(--muted);margin-bottom:12px">เลือกได้ 1–3 ตัว · กดซ้ำเพื่อลบ</div>
 
     <!-- Preview ที่เลือกไว้ -->
-    <div style="display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px">
+    <div class="emoji-preview" style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:14px">
       <span style="font-size:11px;color:var(--muted);min-width:36px">เลือก:</span>
       <span id="emojiPreview" style="font-size:24px;letter-spacing:3px;min-width:100px">📦</span>
       <button onclick="clearEmojiSelection()" style="margin-left:auto;background:none;border:none;color:var(--red);font-size:12px;cursor:pointer;font-weight:700">ล้าง</button>
@@ -2332,7 +2502,7 @@ function renderEmojiPicker(){
   const tabs = $('emojiCatTabs');
   tabs.innerHTML = EMOJI_CATS.map((c,i)=>`
     <button onclick="switchEmojiCat(${i})" id="emojiTab${i}"
-      style="flex-shrink:0;background:${i===_currentCat?'var(--accent)':'var(--card2)'};color:${i===_currentCat?'#000':'var(--muted)'};border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+      style="flex-shrink:0;background:${i===_currentCat?'linear-gradient(180deg,rgba(88,166,255,.35),rgba(88,166,255,.16))':'linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.03))'};color:${i===_currentCat?'#eaf3ff':'var(--muted)'};border:1px solid ${i===_currentCat?'rgba(88,166,255,.72)':'var(--border)'};border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 1px 0 rgba(255,255,255,.1) inset;backdrop-filter:blur(10px)">
       ${c.label}
     </button>`).join('');
   renderEmojiGrid();
@@ -2349,7 +2519,7 @@ function renderEmojiGrid(){
   $('emojiGrid').innerHTML = cat.emojis.map(e=>{
     const sel = _emojiSelected.includes(e);
     return `<button onclick="toggleEmoji('${e}')"
-      style="font-size:22px;background:${sel?'var(--accent)':'var(--card2)'};border:${sel?'2px solid var(--accent)':'1px solid var(--border)'};border-radius:10px;padding:6px 2px;cursor:pointer;transition:.1s;aspect-ratio:1">
+      style="font-size:22px;background:${sel?'linear-gradient(180deg,rgba(88,166,255,.35),rgba(88,166,255,.14))':'linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.03))'};border:${sel?'1px solid rgba(88,166,255,.75)':'1px solid var(--border)'};border-radius:10px;padding:6px 2px;cursor:pointer;transition:.1s;aspect-ratio:1;box-shadow:0 1px 0 rgba(255,255,255,.1) inset;backdrop-filter:blur(8px)">
       ${e}
     </button>`;
   }).join('');
